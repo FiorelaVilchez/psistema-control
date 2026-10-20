@@ -7,7 +7,8 @@
 <style>
 /* Distribución: barra superior y lateral azul noche (identidad del SIG en Django), contenido en tarjetas sobre fondo frío; naranja = acción, "Nuevo" = mejora 2.0 */
 :root{
-  --bg:#f3f5f9; --surface:#ffffff; --surface2:#f7f8fb; --fg:#18202e; --muted:#5a6476; --line:#e1e5ed;
+  color-scheme:light;
+  --bg:#ffffff; --surface:#ffffff; --surface2:#f6f7f9; --fg:#18202e; --muted:#5a6476; --line:#e1e5ed;
   --navy:#111a2b; --navy2:#1b2638; --navy-fg:#dfe5ef; --navy-muted:#8e9ab0;
   --accent:#f39c12; --accent-ink:#9a5a00; --accent-soft:#fff3df;
   --ok:#1b8a4c; --ok-soft:#e3f5ea; --warn:#a96d00; --warn-soft:#fff4d6; --bad:#c3303b; --bad-soft:#fde8ea; --info:#2160c4; --info-soft:#e6efff;
@@ -15,18 +16,6 @@
   --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
   --r:10px;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0d1220; --surface:#151c2b; --surface2:#1a2233; --fg:#e5e9f0; --muted:#9aa4b6; --line:#273149;
-  --navy:#0a101c; --navy2:#121b2b; --navy-fg:#dfe5ef; --navy-muted:#8794ab;
-  --accent:#f5a524; --accent-ink:#f7b955; --accent-soft:#3a2a10;
-  --ok:#43c27c; --ok-soft:#123323; --warn:#e2b04a; --warn-soft:#3a2e10; --bad:#f06a73; --bad-soft:#3d171c; --info:#6aa1ff; --info-soft:#14274a;
-  --new:#b28cf5; --new-soft:#2a1d45; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0d1220; --surface:#151c2b; --surface2:#1a2233; --fg:#e5e9f0; --muted:#9aa4b6; --line:#273149;
-  --navy:#0a101c; --navy2:#121b2b; --navy-fg:#dfe5ef; --navy-muted:#8794ab;
-  --accent:#f5a524; --accent-ink:#f7b955; --accent-soft:#3a2a10;
-  --ok:#43c27c; --ok-soft:#123323; --warn:#e2b04a; --warn-soft:#3a2e10; --bad:#f06a73; --bad-soft:#3d171c; --info:#6aa1ff; --info-soft:#14274a;
-  --new:#b28cf5; --new-soft:#2a1d45; color-scheme:dark}
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.45}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
@@ -589,7 +578,7 @@ function render() {
   const views = { inicio: vInicio, tablero: vTablero, conductores: vConductores, vehiculos: vVehiculos, documentos: vDocumentos, alertas: vAlertas, solicitudes: vSolicitudes, asignacion: vAsignacion, calendario: vCalendario, seguimiento: vSeguimiento, valorizaciones: vValorizaciones, reportes: vReportes, config: vConfig, misservicios: vMisServicios };
   app.innerHTML = `
   <header class="top">
-    <div class="brand">${logo()}<div>Kallpa SIG <small>Transportes Kallpa Andina S.A.C.</small></div><span class="ver">v2.0 prototipo</span></div>
+    <div class="brand">${logo()}<div>Kallpa SIG <small>Transportes Kallpa Andina S.A.C.</small></div></div>
     <div class="sp"></div>
     <div class="userbox">
       <span>${esc(ROLES[S.rol].usuario)}</span><span class="rolechip">${ROLES[S.rol].nombre}</span>
