@@ -1,0 +1,1423 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}</style></head><body>
+<title>Kallpa SIG</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Distribución: barra superior y lateral azul noche (identidad del SIG en Django), contenido en tarjetas sobre fondo frío; naranja = acción, "Nuevo" = mejora 2.0 */
+:root{
+  --bg:#f3f5f9; --surface:#ffffff; --surface2:#f7f8fb; --fg:#18202e; --muted:#5a6476; --line:#e1e5ed;
+  --navy:#111a2b; --navy2:#1b2638; --navy-fg:#dfe5ef; --navy-muted:#8e9ab0;
+  --accent:#f39c12; --accent-ink:#9a5a00; --accent-soft:#fff3df;
+  --ok:#1b8a4c; --ok-soft:#e3f5ea; --warn:#a96d00; --warn-soft:#fff4d6; --bad:#c3303b; --bad-soft:#fde8ea; --info:#2160c4; --info-soft:#e6efff;
+  --new:#7a3fd1; --new-soft:#f1eaff;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1220; --surface:#151c2b; --surface2:#1a2233; --fg:#e5e9f0; --muted:#9aa4b6; --line:#273149;
+  --navy:#0a101c; --navy2:#121b2b; --navy-fg:#dfe5ef; --navy-muted:#8794ab;
+  --accent:#f5a524; --accent-ink:#f7b955; --accent-soft:#3a2a10;
+  --ok:#43c27c; --ok-soft:#123323; --warn:#e2b04a; --warn-soft:#3a2e10; --bad:#f06a73; --bad-soft:#3d171c; --info:#6aa1ff; --info-soft:#14274a;
+  --new:#b28cf5; --new-soft:#2a1d45; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1220; --surface:#151c2b; --surface2:#1a2233; --fg:#e5e9f0; --muted:#9aa4b6; --line:#273149;
+  --navy:#0a101c; --navy2:#121b2b; --navy-fg:#dfe5ef; --navy-muted:#8794ab;
+  --accent:#f5a524; --accent-ink:#f7b955; --accent-soft:#3a2a10;
+  --ok:#43c27c; --ok-soft:#123323; --warn:#e2b04a; --warn-soft:#3a2e10; --bad:#f06a73; --bad-soft:#3d171c; --info:#6aa1ff; --info-soft:#14274a;
+  --new:#b28cf5; --new-soft:#2a1d45; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy)}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{text-wrap:balance;margin:0}
+.mono{font-family:var(--mono)}
+.num{font-variant-numeric:tabular-nums}
+/* barra superior */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);color:var(--navy-fg);display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:2px solid var(--accent)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;white-space:nowrap}
+.brand svg{flex:none}
+.brand small{font-weight:500;color:var(--navy-muted);font-size:12px;display:block}
+.ver{font-family:var(--mono);font-size:11px;border:1px solid var(--accent);color:var(--accent);border-radius:20px;padding:1px 8px}
+.top .sp{flex:1}
+.userbox{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rolechip{background:var(--accent);color:#1b1200;font-family:var(--mono);font-size:11px;font-weight:600;border-radius:5px;padding:2px 7px}
+.tbtn{background:transparent;border:1px solid #3a4760;color:var(--navy-fg);border-radius:7px;padding:6px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;position:relative}
+.tbtn:hover{border-color:var(--accent)}
+.dot{position:absolute;top:-6px;right:-6px;background:var(--bad);color:#fff;font-size:10px;border-radius:10px;padding:0 5px;font-weight:700}
+/* esqueleto */
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:calc(100% - 56px)}
+.side{background:var(--navy2);color:var(--navy-fg);padding:16px 10px;display:flex;flex-direction:column;gap:2px}
+.side h6{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-muted);margin:14px 10px 6px;font-weight:600}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--navy-fg);border:0;background:transparent;text-align:left;width:100%;font-size:13.5px}
+.nav:hover{background:#ffffff10}
+.nav.on{background:#ffffff14;box-shadow:inset 3px 0 0 var(--accent)}
+.nav svg{flex:none;opacity:.85}
+.nav .nw{margin-left:auto}
+.main{min-width:0;padding-block:22px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ph h1{font-size:24px;letter-spacing:-.01em}
+.ph p{margin:4px 0 0;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.card h2{font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h3{font-size:14px;margin:4px 0 8px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:4px;border-top:3px solid var(--line)}
+.kpi .l{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi .v{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi .s{font-size:12px;color:var(--muted)}
+.kpi.ok{border-top-color:var(--ok)}.kpi.bad{border-top-color:var(--bad)}.kpi.warn{border-top-color:var(--warn)}.kpi.info{border-top-color:var(--info)}.kpi.nv{border-top-color:var(--new)}
+/* botones */
+.btn{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:8px 13px;font-weight:600;font-size:13px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--fg);white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#1b1200}
+.btn.pri:hover{filter:brightness(1.05)}
+.btn.dan{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+.btn.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,.nav:focus-visible,.tbtn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;border-radius:20px;padding:2px 9px;white-space:nowrap;border:1px solid transparent}
+.c-ok{background:var(--ok-soft);color:var(--ok)}.c-bad{background:var(--bad-soft);color:var(--bad)}.c-warn{background:var(--warn-soft);color:var(--warn)}
+.c-info{background:var(--info-soft);color:var(--info)}.c-mut{background:var(--surface2);color:var(--muted);border-color:var(--line)}
+.c-acc{background:var(--accent-soft);color:var(--accent-ink)}
+.nw{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--new);background:var(--new-soft);border:1px solid color-mix(in srgb,var(--new) 35%,transparent);border-radius:5px;padding:1px 6px;white-space:nowrap}
+.side .nw{background:#7a3fd133;color:#d8c4ff;border-color:#a77cf055}
+.newbox{border:1px dashed color-mix(in srgb,var(--new) 55%,transparent);background:color-mix(in srgb,var(--new-soft) 55%,var(--surface));border-radius:var(--r);padding:12px 14px}
+/* tablas */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{background:var(--surface2);text-align:left;font-weight:600;color:var(--muted);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td .sub{color:var(--muted);font-size:12px}
+/* formularios */
+.fg{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.f.full{grid-column:1/-1}
+label.l,.f>label{font-size:12px;font-weight:600;color:var(--muted)}
+input[type=text],input[type=number],input[type=date],input[type=time],select,textarea{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;width:100%}
+textarea{min-height:70px;resize:vertical}
+.checks{display:flex;flex-wrap:wrap;gap:8px}
+.ck{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--surface2);cursor:pointer;font-size:13px}
+.ck input{accent-color:var(--accent);width:16px;height:16px}
+.err{color:var(--bad);font-size:12.5px}
+.hint{color:var(--muted);font-size:12px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.toolbar .f{min-width:150px;flex:1}
+/* listas y pasos */
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.item .grow{flex:1;min-width:0}
+.tl{position:relative;display:flex;flex-direction:column;gap:12px;padding-left:18px}
+.tl::before{content:"";position:absolute;left:5px;top:4px;bottom:4px;width:2px;background:var(--line)}
+.tl .ev{position:relative}
+.tl .ev::before{content:"";position:absolute;left:-17px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--muted)}
+.tl .ev.acc::before{border-color:var(--accent)}.tl .ev.bad::before{border-color:var(--bad)}.tl .ev.ok::before{border-color:var(--ok)}.tl .ev.nv::before{border-color:var(--new)}
+.tl .ev small{color:var(--muted);display:block}
+.verdict{border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.v-ok{background:var(--ok-soft)}.v-bad{background:var(--bad-soft)}.v-warn{background:var(--warn-soft)}
+.v-ok b{color:var(--ok)}.v-bad b{color:var(--bad)}.v-warn b{color:var(--warn)}
+.rule{font-family:var(--mono);font-size:12px;font-weight:600}
+/* calendario */
+.cal{display:grid;grid-template-columns:170px repeat(7,minmax(110px,1fr));min-width:960px}
+.cal>div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px;min-height:52px}
+.cal .hd{background:var(--surface2);font-size:12px;font-weight:600;color:var(--muted)}
+.cal .hd.today{color:var(--accent-ink)}
+.ev-b{display:block;border-radius:6px;padding:4px 6px;font-size:11.5px;margin-bottom:4px;background:var(--info-soft);color:var(--info);border-left:3px solid var(--info)}
+.ev-b.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}.ev-b.acc{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent)}.ev-b.bad{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+/* modal y aviso */
+.ov{position:fixed;inset:0;background:#0a0f1a99;display:flex;align-items:flex-start;justify-content:center;z-index:20;overflow:auto;
+  padding-block:max(24px,env(safe-area-inset-top,0px)) 24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.modal{background:var(--surface);border-radius:12px;border:1px solid var(--line);width:min(760px,100%);padding:20px;display:flex;flex-direction:column;gap:14px}
+.modal.wide{width:min(980px,100%)}
+.modal .mh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.modal .mh h2{font-size:18px}
+.x{border:0;background:transparent;cursor:pointer;color:var(--muted);font-size:20px;line-height:1}
+.toast{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:30;display:flex;flex-direction:column;gap:8px;max-width:min(420px,calc(100% - 32px))}
+.toast div{background:var(--navy);color:var(--navy-fg);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;box-shadow:0 6px 24px #0004;font-size:13px}
+.toast div.bad{border-left-color:var(--bad)}.toast div.ok{border-left-color:var(--ok)}
+/* acceso */
+.login{min-height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg);padding-block:30px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.lbox{width:min(760px,100%);background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.lhead{background:var(--navy);color:var(--navy-fg);padding:24px;border-bottom:3px solid var(--accent);display:flex;gap:14px;align-items:center}
+.lhead h1{font-size:22px}.lhead p{margin:2px 0 0;color:var(--navy-muted)}
+.lbody{padding:22px;display:flex;flex-direction:column;gap:14px}
+.users{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.ucard{border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;background:var(--surface2);text-align:left;display:flex;flex-direction:column;gap:3px}
+.ucard:hover{border-color:var(--accent)}
+.ucard b{font-size:14px}.ucard span{color:var(--muted);font-size:12.5px}
+/* gráficos */
+.chart text{fill:var(--muted);font-size:11px;font-family:var(--font)}
+.chart .lbl{fill:var(--fg)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.split{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px}
+.mbtn{display:none}
+@media (max-width:980px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.split{grid-template-columns:1fr}}
+@media (max-width:760px){
+  .shell{grid-template-columns:1fr}
+  .side{flex-direction:row;overflow-x:auto;padding:8px;gap:4px}
+  .side h6{display:none}
+  .nav{width:auto;white-space:nowrap}
+  .g2,.g3,.g4,.fg{grid-template-columns:1fr}
+  .brand small{display:none}
+}
+@media (prefers-reduced-motion:no-preference){.toast div{animation:tin .25s ease-out}@keyframes tin{from{transform:translateY(8px);opacity:0}}}
+</style>
+
+<div id="app"></div>
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Kallpa SIG - prototipo navegable (versión 1.0 + mejoras 2.0)
+   Todos los nombres de personas, clientes y unidades son ficticios.
+   ===================================================================== */
+const KEY = 'kallpa-sig-proto-v3';
+const CATS = ['A-I','A-IIa','A-IIb','A-IIIa','A-IIIb','A-IIIc'];
+const DESCANSO_H = 8, LIMITE_SEMANA_H = 60, SUENO_MIN = 6, DIAS_COBRO = 15;
+const ROLES = {
+  admin: { nombre: 'Administrador de operaciones', usuario: 'Rosa Quispe' },
+  sup: { nombre: 'Supervisor', usuario: 'Carlos Mendoza' },
+  ger: { nombre: 'Gerencia', usuario: 'Ana Torres' },
+  fin: { nombre: 'Finanzas', usuario: 'Milagros Ccama', nuevo: true },
+  cond: { nombre: 'Conductor', usuario: 'Juan Alberto Pérez Quispe', conductorId: 'C1' },
+};
+
+/* ---------- utilidades ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = (n) => String(n).padStart(2, '0');
+const isoD = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const TODAY = isoD(new Date());
+const addDays = (s, n) => { const d = new Date(s + 'T12:00'); d.setDate(d.getDate() + n); return isoD(d); };
+const diffDays = (a, b) => Math.round((new Date(a + 'T12:00') - new Date(b + 'T12:00')) / 864e5);
+const fd = (s) => { if (!s) return '—'; const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`; };
+const nowStamp = () => { const d = new Date(); return `${isoD(d)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const fdt = (s) => s ? `${fd(s.slice(0, 10))} ${s.slice(11, 16)}` : '—';
+const money = (n) => 'S/ ' + Number(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const yearsSince = (s) => { if (!s) return 0; return Math.floor(diffDays(TODAY, s) / 365.25); };
+let seq = Date.now() % 100000;
+const uid = (p) => `${p}${++seq}`;
+
+/* ---------- estado ---------- */
+let S = null;
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* almacenamiento no disponible */ } }
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) { const d = JSON.parse(raw); if (d && d.version === 3) return d; } } catch (e) { /* sin acceso */ }
+  return null;
+}
+
+function seed() {
+  const D = (n) => addDays(TODAY, n);
+  const st = {
+    version: 3, rol: null, ui: { view: 'inicio', filtros: {} }, rechazos: 0, ultimoEscaneo: null,
+    tipos: [
+      { id: 'T1', nombre: 'Camioneta 4x4', asientos: 4, expMin: 3, cat: 'A-IIa', activo: true },
+      { id: 'T2', nombre: 'Van / Sprinter', asientos: 15, expMin: 3, cat: 'A-IIb', activo: true },
+      { id: 'T3', nombre: 'Minibús', asientos: 30, expMin: 5, cat: 'A-IIIa', activo: true },
+      { id: 'T4', nombre: 'Bus', asientos: 45, expMin: 5, cat: 'A-IIIa', activo: true },
+    ],
+    tiposDoc: [
+      { id: 'D1', nombre: 'Licencia de conducir', aplica: 'C', vence: true, bloq: true, tipos: [], dias: 30, v1: true },
+      { id: 'D2', nombre: 'Certificado de manejo defensivo', aplica: 'C', vence: true, bloq: true, tipos: [], dias: 30 },
+      { id: 'D3', nombre: 'Inducción en mina', aplica: 'C', vence: true, bloq: true, tipos: [], dias: 30 },
+      { id: 'D4', nombre: 'Examen médico ocupacional', aplica: 'C', vence: true, bloq: true, tipos: [], dias: 30, v1: true },
+      { id: 'D5', nombre: 'Seguro Vida Ley', aplica: 'C', vence: true, bloq: true, tipos: [], dias: 30 },
+      { id: 'D6', nombre: 'Récord de conductor', aplica: 'C', vence: true, bloq: false, tipos: [], dias: 30 },
+      { id: 'D7', nombre: 'SOAT', aplica: 'V', vence: true, bloq: true, tipos: [], dias: 30 },
+      { id: 'D8', nombre: 'Revisión técnica', aplica: 'V', vence: true, bloq: true, tipos: [], dias: 30, v1: true },
+      { id: 'D9', nombre: 'Póliza contra todo riesgo', aplica: 'V', vence: true, bloq: true, tipos: [], dias: 30, v1: true },
+      { id: 'D10', nombre: 'Seguro de ocupantes', aplica: 'V', vence: true, bloq: true, tipos: ['T3', 'T4'], dias: 30 },
+      { id: 'D11', nombre: 'Tarjeta de propiedad', aplica: 'V', vence: false, bloq: true, tipos: [], dias: 30 },
+      { id: 'D12', nombre: 'Certificado de GPS', aplica: 'V', vence: true, bloq: true, tipos: [], dias: 30 },
+    ],
+    conductores: [
+      { id: 'C1', nombres: 'Juan Alberto', apellidos: 'Pérez Quispe', dni: '41258763', licencia: 'Q41258763', cat: 'A-IIb', fLic: '2015-03-10', tipos: ['T1', 'T2'], estado: 'Disponible', tel: '951 204 118', ingreso: '2019-02-01' },
+      { id: 'C2', nombres: 'Roberto', apellidos: 'Choque Vargas', dni: '40117652', licencia: 'Q40117652', cat: 'A-IIIc', fLic: '2010-06-21', tipos: ['T3', 'T4'], estado: 'Disponible', tel: '951 330 274', ingreso: '2016-08-15' },
+      { id: 'C3', nombres: 'Jorge', apellidos: 'Cutipa Flores', dni: '45210987', licencia: 'Q45210987', cat: 'A-IIa', fLic: '2018-11-05', tipos: ['T1'], estado: 'Disponible', tel: '952 118 403', ingreso: '2021-04-12' },
+      { id: 'C4', nombres: 'Luis Fernando', apellidos: 'Apaza Coila', dni: '44123876', licencia: 'Q44123876', cat: 'A-IIb', fLic: '2017-01-18', tipos: ['T1', 'T2'], estado: 'Disponible', tel: '954 567 890', ingreso: '2023-03-20' },
+      { id: 'C5', nombres: 'Carlos', apellidos: 'Ramos Mamani', dni: '42876501', licencia: 'Q42876501', cat: 'A-IIIa', fLic: '2014-09-02', tipos: ['T4'], estado: 'Disponible', tel: '953 771 026', ingreso: '2018-10-01' },
+      { id: 'C6', nombres: 'Edwin', apellidos: 'Huanca Larico', dni: '43901276', licencia: 'Q43901276', cat: 'A-IIIa', fLic: '2016-05-30', tipos: ['T2', 'T3'], estado: 'Disponible', tel: '951 889 640', ingreso: '2020-07-06' },
+      { id: 'C7', nombres: 'Wilber', apellidos: 'Condori Ticona', dni: '46550231', licencia: 'Q46550231', cat: 'A-IIa', fLic: '2020-02-14', tipos: ['T1'], estado: 'Disponible', tel: '955 402 337', ingreso: '2022-01-10' },
+      { id: 'C8', nombres: 'Ronald', apellidos: 'Mamani Quispe', dni: '40987312', licencia: 'Q40987312', cat: 'A-IIIc', fLic: '2009-04-08', tipos: ['T3', 'T4'], estado: 'Disponible', tel: '951 145 908', ingreso: '2015-05-04' },
+      { id: 'C9', nombres: 'Percy', apellidos: 'Calla Huarachi', dni: '42310894', licencia: 'Q42310894', cat: 'A-IIIa', fLic: '2012-12-01', tipos: ['T1', 'T2', 'T4'], estado: 'Disponible', tel: '952 663 105', ingreso: '2017-09-18' },
+      { id: 'C10', nombres: 'Hugo', apellidos: 'Pari Chambi', dni: '47019284', licencia: 'Q47019284', cat: 'A-IIb', fLic: '2019-07-22', tipos: ['T2'], estado: 'De vacaciones', tel: '954 210 776', ingreso: '2022-06-01' },
+    ],
+    vehiculos: [
+      { id: 'V1', placa: 'ABK-101', tipoId: 'T1', marca: 'Toyota', modelo: 'Hilux 4x4', anio: 2022, asientos: 4, estado: 'Disponible' },
+      { id: 'V2', placa: 'ABK-102', tipoId: 'T1', marca: 'Toyota', modelo: 'Hilux 4x4', anio: 2021, asientos: 4, estado: 'Disponible' },
+      { id: 'V3', placa: 'ABK-103', tipoId: 'T1', marca: 'Toyota', modelo: 'Hilux 4x4', anio: 2020, asientos: 4, estado: 'En mantenimiento' },
+      { id: 'V4', placa: 'C3T-201', tipoId: 'T2', marca: 'Mercedes-Benz', modelo: 'Sprinter 515', anio: 2022, asientos: 15, estado: 'Disponible' },
+      { id: 'V5', placa: 'C3T-202', tipoId: 'T2', marca: 'Mercedes-Benz', modelo: 'Sprinter 515', anio: 2019, asientos: 15, estado: 'Disponible' },
+      { id: 'V6', placa: 'D5M-301', tipoId: 'T3', marca: 'Hyundai', modelo: 'County', anio: 2021, asientos: 30, estado: 'Disponible' },
+      { id: 'V7', placa: 'D5M-302', tipoId: 'T3', marca: 'Hyundai', modelo: 'County', anio: 2023, asientos: 30, estado: 'Disponible' },
+      { id: 'V8', placa: 'F7B-401', tipoId: 'T4', marca: 'Mercedes-Benz', modelo: 'O 500 RS', anio: 2020, asientos: 45, estado: 'Disponible' },
+      { id: 'V9', placa: 'F7B-402', tipoId: 'T4', marca: 'Mercedes-Benz', modelo: 'O 500 RS', anio: 2022, asientos: 45, estado: 'Disponible' },
+      { id: 'V10', placa: 'F7B-403', tipoId: 'T4', marca: 'Scania', modelo: 'K 360 IB', anio: 2023, asientos: 49, estado: 'Disponible' },
+    ],
+    documentos: [],
+    clientes: [
+      { id: 'K1', razon: 'Andes Perforaciones S.A.C.', ruc: '20601234571' },
+      { id: 'K2', razon: 'Montajes Titicaca S.R.L.', ruc: '20605566782' },
+      { id: 'K3', razon: 'Geoservicios del Sur E.I.R.L.', ruc: '20609988113' },
+      { id: 'K4', razon: 'Construcciones Altiplánicas S.A.C.', ruc: '20603344559' },
+    ],
+    tarifas: [
+      { id: 'R1', origen: 'Juliaca', destino: 'U.M. Cerro Azul', tipoId: 'T1', base: 680, km: 380, pkm: 3.2 },
+      { id: 'R2', origen: 'Juliaca', destino: 'U.M. Cerro Azul', tipoId: 'T2', base: 1150, km: 380, pkm: 4.5 },
+      { id: 'R3', origen: 'Juliaca', destino: 'U.M. Cerro Azul', tipoId: 'T3', base: 1650, km: 380, pkm: 5.8 },
+      { id: 'R4', origen: 'Juliaca', destino: 'U.M. Cerro Azul', tipoId: 'T4', base: 2250, km: 380, pkm: 7.0 },
+      { id: 'R5', origen: 'Puno', destino: 'U.M. Pampa Blanca', tipoId: 'T1', base: 820, km: 460, pkm: 3.2 },
+      { id: 'R6', origen: 'Puno', destino: 'U.M. Pampa Blanca', tipoId: 'T2', base: 1380, km: 460, pkm: 4.5 },
+      { id: 'R7', origen: 'Puno', destino: 'U.M. Pampa Blanca', tipoId: 'T4', base: 2700, km: 460, pkm: 7.0 },
+    ],
+    solicitudes: [], asignaciones: [], incidencias: [], cambios: [], gastos: [], valorizaciones: [], alertas: [], notificaciones: [],
+  };
+  // documentos completos por defecto
+  let n = 0;
+  const addDoc = (titular, refId, tipoDocId, vence, mina = 'Aprobado', emision) => {
+    st.documentos.push({ id: 'DOC' + (++n), titular, refId, tipoDocId, emision: emision || addDays(vence || TODAY, -365), vence, archivo: true, mina });
+  };
+  st.conductores.forEach((c, i) => st.tiposDoc.filter((t) => t.aplica === 'C').forEach((t, j) => addDoc('C', c.id, t.id, D(150 + ((i * 37 + j * 23) % 300)))));
+  st.vehiculos.forEach((v, i) => st.tiposDoc.filter((t) => t.aplica === 'V' && (!t.tipos.length || t.tipos.includes(v.tipoId))).forEach((t, j) => addDoc('V', v.id, t.id, t.vence ? D(120 + ((i * 41 + j * 19) % 280)) : null)));
+  const setDoc = (ref, tipo, fn) => { const d = st.documentos.find((x) => x.refId === ref && x.tipoDocId === tipo); if (d) fn(d); };
+  setDoc('C4', 'D4', (d) => { d.vence = D(-30); d.emision = D(-395); });          // examen médico vencido
+  setDoc('C5', 'D1', (d) => { d.vence = D(15); });                               // licencia por vencer
+  setDoc('C6', 'D3', (d) => { d.mina = 'Pendiente'; d.emision = D(-2); d.vence = D(363); }); // inducción en revisión de mina
+  st.documentos = st.documentos.filter((d) => !(d.refId === 'C9' && d.tipoDocId === 'D5')); // falta Vida Ley
+  setDoc('V2', 'D7', (d) => { d.vence = D(10); });                               // SOAT por vencer
+  setDoc('V5', 'D8', (d) => { d.vence = D(-10); d.emision = D(-375); });         // revisión técnica vencida
+  setDoc('V7', 'D12', (d) => { d.mina = 'Pendiente'; d.emision = D(-1); d.vence = D(364); }); // GPS en revisión de mina
+  st.documentos = st.documentos.filter((d) => !(d.refId === 'V9' && d.tipoDocId === 'D10')); // bus sin seguro de ocupantes
+
+  // solicitudes
+  const sol = (id, k, dia, hora, dur, origen, destino, tipoId, pax, prioridad, estado, extra = {}) => {
+    const t = st.tarifas.find((r) => r.origen === origen && r.destino === destino && r.tipoId === tipoId);
+    st.solicitudes.push({ id, clienteId: k, fecha: D(dia), hora, duracion: dur, origen, destino, servicio: 'Traslado de personal', tipoId, pasajeros: pax, prioridad, estado, monto: t ? t.base : 900, creada: D(dia - 4) + ' 09:15', motivo: '', ...extra });
+  };
+  sol('S101', 'K1', -26, '05:30', 10, 'Juliaca', 'U.M. Cerro Azul', 'T2', 12, 'Media', 'Completada');
+  sol('S102', 'K2', -12, '05:00', 10, 'Juliaca', 'U.M. Cerro Azul', 'T4', 40, 'Alta', 'Completada');
+  sol('S103', 'K3', -5, '06:00', 8, 'Juliaca', 'U.M. Cerro Azul', 'T1', 3, 'Media', 'Completada');
+  sol('S104', 'K4', -3, '05:30', 10, 'Juliaca', 'U.M. Cerro Azul', 'T3', 26, 'Alta', 'Completada');
+  sol('S105', 'K1', -6, '07:00', 8, 'Puno', 'U.M. Pampa Blanca', 'T2', 10, 'Baja', 'Cancelada', { motivo: 'El cliente postergó la movilización de su personal.' });
+  sol('S106', 'K2', -1, '05:00', 12, 'Puno', 'U.M. Pampa Blanca', 'T4', 44, 'Alta', 'Reprogramada', { motivo: 'Sin combinación válida: los buses disponibles tienen bloqueos documentales o cruce de horario.', noAtendida: true });
+  sol('S107', 'K2', 0, '05:00', 11, 'Juliaca', 'U.M. Cerro Azul', 'T4', 38, 'Alta', 'Asignada');
+  sol('S108', 'K3', 0, '14:00', 8, 'Juliaca', 'U.M. Cerro Azul', 'T2', 11, 'Media', 'Asignada');
+  sol('S109', 'K1', 1, '05:30', 8, 'Juliaca', 'U.M. Cerro Azul', 'T1', 3, 'Media', 'Asignada');
+  sol('S110', 'K4', 2, '05:00', 11, 'Puno', 'U.M. Pampa Blanca', 'T4', 40, 'Alta', 'Pendiente');
+  sol('S111', 'K3', 2, '06:00', 10, 'Juliaca', 'U.M. Cerro Azul', 'T3', 24, 'Media', 'Pendiente');
+  sol('S112', 'K1', 3, '07:00', 8, 'Puno', 'U.M. Pampa Blanca', 'T1', 4, 'Baja', 'Pendiente');
+  sol('S113', 'K2', 5, '05:30', 10, 'Juliaca', 'U.M. Cerro Azul', 'T2', 14, 'Media', 'Pendiente');
+
+  const asg = (id, solId, condId, vehId, veredicto, estadoServicio, extra = {}) => st.asignaciones.push({ id, solId, condId, vehId, veredicto, obs: [], estadoServicio, creada: '', checklist: null, salida: null, llegada: null, kmIni: null, kmFin: null, acta: false, ...extra });
+  const ck = (km, sueno = 7.5) => ({ frenos: true, llantas: true, luces: true, cinturones: true, extintor: true, botiquin: true, triangulos: true, docs: true, gps: true, sueno, apto: true, kmIni: km, resultado: 'Apto', fecha: '' });
+  asg('A1', 'S101', 'C1', 'V4', 'Aprobada', 'Completado', { checklist: ck(48210), kmIni: 48210, kmFin: 48612, salida: D(-26) + ' 05:34', llegada: D(-26) + ' 14:50', acta: true });
+  asg('A2', 'S102', 'C2', 'V8', 'Aprobada', 'Completado', { checklist: ck(120340), kmIni: 120340, kmFin: 120731, salida: D(-12) + ' 05:06', llegada: D(-12) + ' 14:40', acta: true });
+  asg('A3', 'S103', 'C3', 'V1', 'Aprobada', 'Completado', { checklist: ck(30122), kmIni: 30122, kmFin: 30517, salida: D(-5) + ' 06:22', llegada: D(-5) + ' 13:05', acta: true });
+  asg('A4', 'S104', 'C8', 'V6', 'Observada', 'Completado', { obs: ['R3: Licencia de conducir vence pronto'], checklist: ck(65800), kmIni: 65800, kmFin: 66214, salida: D(-3) + ' 05:31', llegada: D(-3) + ' 16:10', acta: true });
+  asg('A5', 'S107', 'C8', 'V8', 'Aprobada', 'En ruta', { checklist: ck(120900), kmIni: 120900, salida: D(0) + ' 05:04' });
+  asg('A6', 'S108', 'C1', 'V4', 'Aprobada', 'Programado');
+  asg('A7', 'S109', 'C3', 'V1', 'Observada', 'Programado', { obs: ['R3: SOAT del vehículo vence en 10 días'] });
+  st.asignaciones.forEach((a) => { const s = st.solicitudes.find((x) => x.id === a.solId); a.creada = addDays(s.fecha, -2) + ' 10:20'; if (a.checklist) a.checklist.fecha = a.salida ? a.salida : ''; });
+  st.incidencias.push({ id: 'I1', asigId: 'A4', tipo: 'Retraso', gravedad: 'Leve', desc: 'Control policial en Santa Lucía, 35 minutos de espera.', fecha: D(-3) + ' 09:40' });
+  st.cambios.push({ id: 'CB1', solId: 'S109', campo: 'Hora', antes: '06:00', despues: '05:30', usuario: 'Rosa Quispe', fecha: D(-1) + ' 16:42' });
+  const g = (asigId, tipo, monto) => st.gastos.push({ id: uid('G'), asigId, tipo, monto });
+  g('A1', 'Combustible', 310); g('A1', 'Peajes', 28); g('A2', 'Combustible', 640); g('A2', 'Peajes', 56); g('A2', 'Alimentación', 45);
+  g('A3', 'Combustible', 180); g('A3', 'Peajes', 14); g('A4', 'Combustible', 420); g('A4', 'Peajes', 42);
+  st.valorizaciones.push(
+    { id: 'VL1', solId: 'S101', kmRec: 402, kmExceso: 22, monto: 1150 + 22 * 4.5, estado: 'Facturada', os: 'OS-2026-0418', factura: 'F001-000231', fFactura: D(-19), fEnvio: D(-24), fConf: D(-21), fPago: null, obs: '' },
+    { id: 'VL2', solId: 'S102', kmRec: 391, kmExceso: 11, monto: 2250 + 11 * 7, estado: 'Pagada', os: 'OS-2026-0502', factura: 'F001-000240', fFactura: D(-9), fEnvio: D(-11), fConf: D(-10), fPago: D(-2), obs: '' },
+    { id: 'VL3', solId: 'S104', kmRec: 414, kmExceso: 34, monto: 1650 + 34 * 5.8, estado: 'Enviada', os: '', factura: '', fFactura: null, fEnvio: D(-2), fConf: null, fPago: null, obs: '' },
+  );
+  st.notificaciones.push(
+    { id: 'N1', para: 'C1', msg: `Nuevo servicio S108: ${D(0).split('-').reverse().join('/')} 14:00, Juliaca → U.M. Cerro Azul, unidad C3T-201.`, leida: false, fecha: D(-1) + ' 10:20' },
+    { id: 'N2', para: 'C3', msg: 'Cambio en tu servicio S109: hora 06:00 → 05:30.', leida: false, fecha: D(-1) + ' 16:42' },
+  );
+  return st;
+}
+
+/* ---------- consultas de dominio ---------- */
+const tipo = (id) => S.tipos.find((t) => t.id === id) || { nombre: '—', asientos: 0, expMin: 0, cat: 'A-I' };
+const tdoc = (id) => S.tiposDoc.find((t) => t.id === id);
+const cond = (id) => S.conductores.find((c) => c.id === id);
+const veh = (id) => S.vehiculos.find((v) => v.id === id);
+const solx = (id) => S.solicitudes.find((s) => s.id === id);
+const cli = (id) => S.clientes.find((k) => k.id === id) || { razon: '—' };
+const nomC = (c) => c ? `${c.apellidos}, ${c.nombres}` : '—';
+const asigActiva = (solId) => S.asignaciones.find((a) => a.solId === solId && a.estadoServicio !== 'Cancelado');
+
+function estadoDoc(d) {
+  const t = tdoc(d.tipoDocId);
+  if (!t || !t.vence || !d.vence) return 'Vigente';
+  if (d.vence < TODAY) return 'Vencido';
+  if (diffDays(d.vence, TODAY) <= (t.dias || 30)) return 'Por vencer';
+  return 'Vigente';
+}
+function docsRequeridos(titular, r) {
+  return S.tiposDoc.filter((t) => t.activo !== false && t.aplica === titular && (titular === 'C' || !t.tipos.length || t.tipos.includes(r.tipoId)));
+}
+function docDe(titular, refId, tipoDocId) {
+  return S.documentos.filter((d) => d.titular === titular && d.refId === refId && d.tipoDocId === tipoDocId).sort((a, b) => (b.vence || '9999').localeCompare(a.vence || '9999'))[0];
+}
+/* Habilitación documental (mejora M1) */
+function habilitacion(titular, r) {
+  const res = { faltan: [], vencidos: [], mina: [], porVencer: [], noBloq: [] };
+  docsRequeridos(titular, r).forEach((t) => {
+    const d = docDe(titular, r.id, t.id);
+    if (!d) { (t.bloq ? res.faltan : res.noBloq).push(t.nombre); return; }
+    const e = estadoDoc(d);
+    if (e === 'Vencido') (t.bloq ? res.vencidos : res.noBloq).push(t.nombre);
+    else if (d.mina === 'Pendiente' && t.bloq) res.mina.push(t.nombre);
+    else if (e === 'Por vencer') res.porVencer.push({ nombre: t.nombre, dias: diffDays(d.vence, TODAY) });
+  });
+  res.estado = (res.faltan.length || res.vencidos.length || res.mina.length) ? 'No habilitado' : (res.porVencer.length || res.noBloq.length) ? 'Con observaciones' : 'Habilitado';
+  return res;
+}
+function chipHab(h) {
+  const cls = h.estado === 'Habilitado' ? 'c-ok' : h.estado === 'No habilitado' ? 'c-bad' : 'c-warn';
+  const det = [...h.faltan.map((x) => 'Falta: ' + x), ...h.vencidos.map((x) => 'Vencido: ' + x), ...h.mina.map((x) => 'En revisión de mina: ' + x), ...h.porVencer.map((x) => `${x.nombre} vence en ${x.dias} d`)];
+  return `<span class="chip ${cls}">${h.estado}</span>${det.length ? `<div class="sub" style="margin-top:3px">${esc(det.join(' · '))}</div>` : ''}`;
+}
+
+/* Horarios y horas de manejo (mejora M5) */
+const inicio = (s) => new Date(`${s.fecha}T${s.hora}`);
+const fin = (s) => new Date(inicio(s).getTime() + s.duracion * 36e5);
+function horasAsig(a) {
+  const s = solx(a.solId);
+  if (a.salida && a.llegada) return Math.max(0, (new Date(a.llegada.replace(' ', 'T')) - new Date(a.salida.replace(' ', 'T'))) / 36e5);
+  return s.duracion;
+}
+function horasConductor(cId, desde, hasta, exclSol) {
+  return S.asignaciones.filter((a) => a.condId === cId && a.estadoServicio !== 'Cancelado' && a.solId !== exclSol).reduce((t, a) => {
+    const s = solx(a.solId); return (s.fecha >= desde && s.fecha <= hasta) ? t + horasAsig(a) : t;
+  }, 0);
+}
+function semana(fecha) { const d = new Date(fecha + 'T12:00'); const k = (d.getDay() + 6) % 7; const ini = addDays(fecha, -k); return [ini, addDays(ini, 6)]; }
+function cruces(recurso, id, sol, excluirSolId) {
+  const ini = inicio(sol), f = fin(sol);
+  const margen = recurso === 'C' ? DESCANSO_H * 36e5 : 0;
+  return S.asignaciones.filter((a) => a.estadoServicio !== 'Cancelado' && a.solId !== excluirSolId && (recurso === 'C' ? a.condId === id : a.vehId === id))
+    .map((a) => solx(a.solId)).filter((o) => o && o.estado !== 'Cancelada' && inicio(o) < new Date(f.getTime() + margen) && new Date(fin(o).getTime() + margen) > ini);
+}
+
+/* Motor de validación: R1-R5 (versión 1.0, ampliado) + R6-R10 (mejoras) */
+function validar(sol, c, v, opts = {}) {
+  const r = { bloqueos: [], obs: [], veredicto: 'Aprobada' };
+  const B = (code, msg, nuevo) => r.bloqueos.push({ code, msg, nuevo });
+  const O = (code, msg, nuevo) => r.obs.push({ code, msg, nuevo });
+  const hc = habilitacion('C', c), hv = habilitacion('V', v);
+  hc.faltan.forEach((x) => B('R1', `Falta ${x} del conductor`, true));
+  hv.faltan.forEach((x) => B('R1', `Falta ${x} del vehículo`, true));
+  hc.vencidos.forEach((x) => B('R2', `${x} del conductor vencido`, x !== 'Licencia de conducir'));
+  hv.vencidos.forEach((x) => B('R2', `${x} del vehículo vencido`, x !== 'Revisión técnica'));
+  hc.mina.forEach((x) => B('R8', `${x} del conductor pendiente de visto bueno de mina`, true));
+  hv.mina.forEach((x) => B('R8', `${x} del vehículo pendiente de visto bueno de mina`, true));
+  hc.porVencer.forEach((x) => O('R3', `${x.nombre} del conductor vence en ${x.dias} días`));
+  hv.porVencer.forEach((x) => O('R3', `${x.nombre} del vehículo vence en ${x.dias} días`));
+  hc.noBloq.forEach((x) => O('R3', `${x} del conductor vencido o faltante (no bloqueante)`, true));
+  if (v.estado === 'En mantenimiento') B('R4', 'Vehículo en mantenimiento');
+  if (v.estado === 'De baja') B('R4', 'Vehículo dado de baja');
+  if (c.estado !== 'Disponible') B('R5', `Conductor ${c.estado.toLowerCase()}`);
+  const tv = tipo(v.tipoId);
+  if (!c.tipos.includes(v.tipoId)) B('R6', `El conductor no está habilitado para manejar ${tv.nombre}`, true);
+  else if (yearsSince(c.fLic) < tv.expMin) B('R6', `Experiencia de ${yearsSince(c.fLic)} años; ${tv.nombre} exige ${tv.expMin}`, true);
+  if (v.asientos < sol.pasajeros) B('R7', `La unidad tiene ${v.asientos} asientos y la solicitud requiere ${sol.pasajeros}`, true);
+  const cc = cruces('C', c.id, sol, sol.id), cv = cruces('V', v.id, sol, sol.id);
+  if (cc.length) B('R9', `El conductor tiene el servicio ${cc[0].id} (${fd(cc[0].fecha)} ${cc[0].hora}) que se cruza, contando ${DESCANSO_H} h de descanso`, true);
+  if (cv.length) B('R9', `El vehículo tiene el servicio ${cv[0].id} (${fd(cv[0].fecha)} ${cv[0].hora}) que se cruza`, true);
+  const [wi, wf] = semana(sol.fecha); const hs = horasConductor(c.id, wi, wf, sol.id);
+  if (hs + sol.duracion > LIMITE_SEMANA_H) B('R10', `Superaría el límite semanal: ${Math.round(hs + sol.duracion)} de ${LIMITE_SEMANA_H} h`, true);
+  if (v.tipoId !== sol.tipoId) O('Tipo', `La unidad es ${tv.nombre} y se pidió ${tipo(sol.tipoId).nombre}`);
+  r.veredicto = r.bloqueos.length ? 'Rechazada' : r.obs.length ? 'Observada' : 'Aprobada';
+  return r;
+}
+
+/* Ranking de candidatos (mejora M5) */
+function ranking(sol) {
+  const hasta = TODAY, desde = addDays(TODAY, -30);
+  return S.conductores.filter((c) => c.estado === 'Disponible' && c.tipos.includes(sol.tipoId))
+    .map((c) => ({ c, h30: horasConductor(c.id, desde, hasta), n30: S.asignaciones.filter((a) => a.condId === c.id && a.estadoServicio !== 'Cancelado' && solx(a.solId).fecha >= desde).length }))
+    .map((x) => ({ ...x, hab: habilitacion('C', x.c).estado === 'No habilitado' ? 1 : 0 }))
+    .sort((a, b) => a.hab - b.hab || a.h30 - b.h30 || a.n30 - b.n30 || a.c.apellidos.localeCompare(b.c.apellidos));
+}
+function usoVeh(vId) { const desde = addDays(TODAY, -30); return S.asignaciones.filter((a) => a.vehId === vId && a.estadoServicio !== 'Cancelado' && solx(a.solId).fecha >= desde).reduce((t, a) => t + horasAsig(a), 0); }
+
+function crearAsignacion(sol, c, v, res, origen) {
+  const a = { id: uid('A'), solId: sol.id, condId: c.id, vehId: v.id, veredicto: res.veredicto, obs: res.obs.map((o) => `${o.code}: ${o.msg}`), estadoServicio: 'Programado', creada: nowStamp(), checklist: null, salida: null, llegada: null, kmIni: null, kmFin: null, acta: false, origen };
+  S.asignaciones.push(a);
+  sol.estado = 'Asignada'; sol.motivo = ''; sol.noAtendida = false;
+  notificar(c.id, `Nuevo servicio ${sol.id}: ${fd(sol.fecha)} ${sol.hora}, ${sol.origen} → ${sol.destino}, unidad ${v.placa}.`);
+  notificar('fin', `Asignar viáticos y combustible para ${sol.id} (${v.placa}, ${nomC(c)}).`);
+  res.obs.filter((o) => o.code === 'R3').forEach((o) => alertar('Medio', 'Documento por vencer', o.msg, `${sol.id}-${o.msg}`));
+  return a;
+}
+function asignarAuto(sol, excl = { c: [], v: [] }) {
+  const vehs = S.vehiculos.filter((v) => v.estado === 'Disponible' && v.tipoId === sol.tipoId && v.asientos >= sol.pasajeros && !excl.v.includes(v.id)).sort((a, b) => usoVeh(a.id) - usoVeh(b.id) || a.placa.localeCompare(b.placa));
+  const conds = ranking(sol).map((x) => x.c).filter((c) => !excl.c.includes(c.id));
+  const intentos = [];
+  let elegido = null;
+  for (const objetivo of ['Aprobada', 'Observada']) {
+    for (const c of conds) { for (const v of vehs) { const r = validar(sol, c, v); if (objetivo === 'Aprobada') intentos.push({ c, v, r }); if (r.veredicto === objetivo) { elegido = { c, v, r }; break; } } if (elegido) break; }
+    if (elegido) break;
+  }
+  if (!elegido) {
+    sol.estado = 'Reprogramada'; sol.noAtendida = true;
+    sol.motivo = !conds.length ? `No hay conductores disponibles habilitados para ${tipo(sol.tipoId).nombre}.` : !vehs.length ? `No hay unidades ${tipo(sol.tipoId).nombre} disponibles con ${sol.pasajeros} asientos o más.` : 'Todas las combinaciones tienen bloqueos documentales, de habilitación o de horario.';
+    return { ok: false, msg: sol.motivo, intentos };
+  }
+  const a = crearAsignacion(sol, elegido.c, elegido.v, elegido.r, 'Automática');
+  return { ok: true, a, r: elegido.r, intentos, msg: `Asignación ${elegido.r.veredicto}: ${nomC(elegido.c)} con ${elegido.v.placa}.` };
+}
+
+/* Alertas y notificaciones */
+function alertar(nivel, tipoA, msg, clave) {
+  const ex = S.alertas.find((x) => x.clave === clave && x.estado === 'Activa');
+  if (ex) return ex;
+  const a = { id: uid('AL'), nivel, tipo: tipoA, msg, clave, estado: 'Activa', fecha: nowStamp() };
+  S.alertas.unshift(a); return a;
+}
+function notificar(para, msg) { S.notificaciones.unshift({ id: uid('N'), para, msg, leida: false, fecha: nowStamp() }); }
+function escanear() {
+  const activas = new Set();
+  const marca = (nivel, t, msg, clave) => { alertar(nivel, t, msg, clave); activas.add(clave); };
+  let nA = 0, nM = 0;
+  [['C', S.conductores], ['V', S.vehiculos]].forEach(([tit, lista]) => lista.filter((r) => r.estado !== 'De baja').forEach((r) => {
+    const nombre = tit === 'C' ? nomC(r) : `vehículo ${r.placa}`;
+    docsRequeridos(tit, r).forEach((t) => {
+      const d = docDe(tit, r.id, t.id);
+      if (!d) { if (t.bloq) { marca('Alto', 'Documento faltante', `Falta ${t.nombre} de ${nombre}`, `F-${r.id}-${t.id}`); nA++; } return; }
+      const e = estadoDoc(d);
+      if (e === 'Vencido') { marca('Alto', 'Documento vencido', `${t.nombre} de ${nombre} venció hace ${diffDays(TODAY, d.vence)} días`, `V-${d.id}`); nA++; }
+      else if (e === 'Por vencer') { marca('Medio', 'Documento por vencer', `${t.nombre} de ${nombre} vence en ${diffDays(d.vence, TODAY)} días`, `P-${d.id}`); nM++; }
+      if (d.mina === 'Pendiente') { marca('Medio', 'Pendiente de visto bueno de mina', `${t.nombre} de ${nombre} espera aprobación en 2personnal`, `M-${d.id}`); nM++; }
+    });
+  }));
+  S.valorizaciones.filter((v) => v.estado === 'Facturada' && v.fFactura && diffDays(TODAY, v.fFactura) > DIAS_COBRO).forEach((v) => { marca('Medio', 'Cobro pendiente', `Factura ${v.factura} de ${v.solId} lleva ${diffDays(TODAY, v.fFactura)} días sin pago`, `CB-${v.id}`); nM++; });
+  let res = 0;
+  S.alertas.forEach((a) => { if (a.estado === 'Activa' && a.clave && /^(F|V|P|M|CB)-/.test(a.clave) && !activas.has(a.clave)) { a.estado = 'Resuelta'; a.resuelta = 'Automática'; res++; } });
+  S.ultimoEscaneo = nowStamp();
+  return { nA, nM, res };
+}
+
+/* ---------- interfaz: navegación ---------- */
+const ICON = {
+  home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/>',
+  bus: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M3 11h18M7 20v-3M17 20v-3"/>',
+  doc: '<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h7M9 17h7"/>',
+  bell: '<path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+  clip: '<rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4V2h6v2M9 12l2 2 4-4"/>',
+  cpu: '<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>',
+  cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  route: '<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/>',
+  money: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>',
+  csv: '<path d="M4 4h16v16H4zM4 10h16M10 4v16"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
+  star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.6 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',
+  out: '<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 16l-4-4 4-4M6 12h10"/>',
+};
+const ic = (k, s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
+const NW = (m) => `<span class="nw" title="Mejora de la versión 2.0">${m ? m + ' · ' : ''}Nuevo</span>`;
+
+const MENU = [
+  { sec: 'Presentación', items: [{ v: 'inicio', t: 'Recorrido de mejoras', i: 'star', roles: 'admin sup ger fin' }] },
+  { sec: 'Operación', items: [
+    { v: 'tablero', t: 'Tablero operativo', i: 'chart', roles: 'admin sup ger' },
+    { v: 'conductores', t: 'Conductores', i: 'user', roles: 'admin sup' },
+    { v: 'vehiculos', t: 'Vehículos', i: 'bus', roles: 'admin sup' },
+    { v: 'documentos', t: 'Control documental', i: 'doc', roles: 'admin sup' },
+    { v: 'alertas', t: 'Alertas', i: 'bell', roles: 'admin sup' },
+    { v: 'solicitudes', t: 'Solicitudes', i: 'clip', roles: 'admin sup ger' },
+    { v: 'asignacion', t: 'Programación y asignación', i: 'cpu', roles: 'admin sup ger' },
+    { v: 'calendario', t: 'Calendario semanal', i: 'cal', roles: 'admin sup ger', m: 'M5' },
+    { v: 'seguimiento', t: 'Servicios en curso', i: 'route', roles: 'admin sup', m: 'M4' },
+  ] },
+  { sec: 'Gestión', items: [
+    { v: 'valorizaciones', t: 'Valorizaciones y cobro', i: 'money', roles: 'admin ger fin', m: 'M6' },
+    { v: 'reportes', t: 'Reportes para Power BI', i: 'csv', roles: 'admin ger fin' },
+    { v: 'config', t: 'Configuración', i: 'gear', roles: 'admin', m: 'M0' },
+  ] },
+  { sec: 'Conductor', items: [{ v: 'misservicios', t: 'Mis servicios', i: 'route', roles: 'cond' }] },
+];
+const canSee = (v) => MENU.some((g) => g.items.some((i) => i.v === v && i.roles.split(' ').includes(S.rol)));
+const isAdmin = () => S.rol === 'admin';
+
+function toast(msg, cls = '') {
+  const box = $('#toast'); while (box.children.length >= 3) box.firstChild.remove();
+  const t = document.createElement('div'); t.className = cls; t.textContent = msg; box.appendChild(t);
+  setTimeout(() => t.remove(), 4200);
+}
+function go(view, extra) { S.ui.view = view; if (extra) Object.assign(S.ui, extra); save(); render(); window.scrollTo(0, 0); }
+
+/* ---------- modal ---------- */
+function modal(title, html, wide) {
+  closeModal();
+  const ov = document.createElement('div'); ov.className = 'ov'; ov.id = 'ov';
+  ov.innerHTML = `<div class="modal ${wide ? 'wide' : ''}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="mh"><h2>${title}</h2><button class="x" data-act="close" aria-label="Cerrar">×</button></div>${html}</div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', (e) => { if (e.target === ov) closeModal(); });
+  const f = ov.querySelector('input,select,textarea'); if (f) f.focus();
+}
+function closeModal() { const o = $('#ov'); if (o) o.remove(); }
+function confirmar(title, text, onOk, label = 'Confirmar', cls = 'pri') {
+  modal(title, `<p style="margin:0">${text}</p><div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">Cancelar</button><button class="btn ${cls}" id="okbtn">${label}</button></div>`);
+  $('#okbtn').onclick = () => { closeModal(); onOk(); };
+}
+
+/* ---------- renderizado general ---------- */
+function render() {
+  const app = $('#app');
+  if (!S.rol) { app.innerHTML = vLogin(); return; }
+  if (!canSee(S.ui.view)) S.ui.view = S.rol === 'cond' ? 'misservicios' : S.rol === 'fin' ? 'valorizaciones' : 'inicio';
+  const misNoti = S.notificaciones.filter((n) => !n.leida && (n.para === S.rol || (S.rol === 'cond' && n.para === ROLES.cond.conductorId) || (S.rol === 'admin' && n.para === 'admin')));
+  const menu = MENU.map((g) => {
+    const its = g.items.filter((i) => i.roles.split(' ').includes(S.rol));
+    if (!its.length) return '';
+    return `<h6>${g.sec}</h6>` + its.map((i) => `<button class="nav ${S.ui.view === i.v ? 'on' : ''}" data-act="go" data-v="${i.v}">${ic(i.i)}<span>${i.t}</span>${i.m ? `<span class="nw">${i.m}</span>` : ''}</button>`).join('');
+  }).join('');
+  const views = { inicio: vInicio, tablero: vTablero, conductores: vConductores, vehiculos: vVehiculos, documentos: vDocumentos, alertas: vAlertas, solicitudes: vSolicitudes, asignacion: vAsignacion, calendario: vCalendario, seguimiento: vSeguimiento, valorizaciones: vValorizaciones, reportes: vReportes, config: vConfig, misservicios: vMisServicios };
+  app.innerHTML = `
+  <header class="top">
+    <div class="brand">${logo()}<div>Kallpa SIG <small>Transportes Kallpa Andina S.A.C.</small></div><span class="ver">v2.0 prototipo</span></div>
+    <div class="sp"></div>
+    <div class="userbox">
+      <span>${esc(ROLES[S.rol].usuario)}</span><span class="rolechip">${ROLES[S.rol].nombre}</span>
+      <button class="tbtn" data-act="noti" aria-label="Notificaciones">${ic('bell', 16)}${misNoti.length ? `<span class="dot">${misNoti.length}</span>` : ''}</button>
+      <button class="tbtn" data-act="logout">${ic('out', 16)}Cambiar de usuario</button>
+    </div>
+  </header>
+  <div class="shell"><nav class="side" aria-label="Módulos">${menu}</nav><main class="main"><div class="wrap">${views[S.ui.view]()}</div></main></div>`;
+  afterRender();
+}
+function logo() { return `<svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2l11 4v9c0 7-5 12-11 15C10 27 5 22 5 15V6z" fill="#f39c12"/><path d="M11 21l5-11 5 11M13 17h6" stroke="#1b1200" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+function afterRender() {
+  if (S.ui.view === 'asignacion' && S.ui.manual) { const m = S.ui.manual; S.ui.manual = null; abrirManual(m.solId, m.condId, m.vehId); }
+}
+
+/* ---------- acceso ---------- */
+function vLogin() {
+  const u = (k, d) => `<button class="ucard" data-act="login" data-r="${k}"><b>${ROLES[k].nombre} ${ROLES[k].nuevo ? NW() : ''}</b><span>${ROLES[k].usuario}</span><span>${d}</span></button>`;
+  return `<div class="login"><div class="lbox">
+    <div class="lhead">${logo()}<div><h1>Kallpa SIG</h1><p>Sistema de Información Gerencial · Transportes Kallpa Andina S.A.C.</p></div></div>
+    <div class="lbody">
+      <p style="margin:0">Prototipo navegable de la <b>versión 2.0</b>: incluye todo lo que hace el sistema actual y las mejoras propuestas, marcadas con ${NW()}. Elige un usuario de demostración para entrar.</p>
+      <div class="users">${u('admin', 'Registra, asigna y controla toda la operación')}${u('sup', 'Revisa documentos, alertas y servicios')}${u('ger', 'Consulta el tablero y los reportes')}${u('fin', 'Valorizaciones, facturas y cobros')}${u('cond', 'Checklist, salida, llegada e incidencias')}</div>
+      <p class="hint" style="margin:0">Los datos son ficticios y se guardan solo en este navegador. Puedes restablecerlos desde "Recorrido de mejoras".</p>
+    </div></div></div>`;
+}
+
+/* ---------- recorrido de mejoras ---------- */
+const MEJORAS = [
+  { m: 'M0', t: 'Catálogo de tipos de vehículo', d: 'El vehículo elige un solo tipo de una lista y el conductor marca con casillas todos los tipos que maneja. Cada tipo exige años de experiencia y categoría de licencia.', demo: 'Abrir el formulario de conductor con casillas', act: 'demo-m0' },
+  { m: 'M1', t: 'Requisitos documentales por tipo de recurso', d: 'Cada recurso muestra si está habilitado y qué le falta. El bus F7B-402 no tiene Seguro de ocupantes y el sistema no deja asignarlo.', demo: 'Ver la ficha del bus sin seguro de ocupantes', act: 'demo-m1' },
+  { m: 'M2', t: 'Bitácora de cambios de la solicitud', d: 'Cada cambio de fecha, hora, ruta o pasajeros queda registrado con usuario y hora, y se avisa al conductor asignado.', demo: 'Ver la línea de tiempo de la solicitud S109', act: 'demo-m2' },
+  { m: 'M3', t: 'Checklist preoperacional y control de somnolencia', d: 'El conductor llena el checklist desde su celular. Si duerme menos de 6 horas o falla un ítem crítico, no puede salir y se genera una alerta.', demo: 'Entrar como conductor y llenar el checklist de S108', act: 'demo-m3' },
+  { m: 'M4', t: 'Estados del servicio e incidencias', d: 'Salida, llegada con kilometraje y acta, e incidencias con reemplazo automático por una unidad habilitada.', demo: 'Ver los servicios en curso', act: 'demo-m4' },
+  { m: 'M5', t: 'Disponibilidad por fecha y reparto por horas', d: 'Un conductor solo está ocupado en el horario de su servicio, con 8 horas de descanso. La asignación prioriza a quien menos horas manejó en 30 días.', demo: 'Intentar asignar un bus a un conductor que solo maneja camionetas', act: 'demo-m5' },
+  { m: 'M6', t: 'Tareo y valorización automáticos', d: 'La valorización se calcula con el kilometraje registrado, los km incluidos de la tarifa y el precio por km de exceso.', demo: 'Generar la valorización de S103', act: 'demo-m6' },
+  { m: 'M7', t: 'Tablero gerencial ampliado', d: 'Porcentaje de recursos habilitados, demanda no atendida, horas por conductor, incidencias y montos por cobrar.', demo: 'Ver el tablero ampliado', act: 'demo-m7' },
+];
+function vInicio() {
+  const base = ['Acceso por rol (4 roles)', 'Registro de conductores y vehículos con búsqueda y filtros', 'Documentos con estado automático: Vigente, Por vencer, Vencido', 'Alertas de riesgo alto y medio sin duplicados', 'Solicitudes de servicio', 'Asignación automática y manual con reglas R1 a R5', 'Portal del conductor con notificaciones', 'Tablero operativo y CSV para Power BI'];
+  return `
+  <div class="ph"><div><h1>Recorrido de mejoras</h1><p>Lo que hace hoy el SIG y lo que agrega la versión 2.0. Cada botón abre el caso que demuestra la mejora.</p></div>
+    <div class="row"><button class="btn" data-act="reset">Restablecer datos de demostración</button></div></div>
+  <div class="split">
+    <div class="card"><h2>Versión 1.0 · lo que ya hace el sistema</h2><div class="list">${base.map((b) => `<div class="item"><span class="chip c-ok">Base</span><div class="grow">${b}</div></div>`).join('')}</div></div>
+    <div class="card"><h2>Por qué hacen falta las mejoras</h2>
+      <p style="margin-top:0">En la validación de la versión 1.0 encontramos tres casos que el sistema no resolvía bien:</p>
+      <div class="list">
+        <div class="item"><span class="rule">L1</span><div class="grow">Un conductor y un vehículo sin documentos registrados salían <b>Aprobada</b>. Lo resuelve <b>M1</b>.</div></div>
+        <div class="item"><span class="rule">L2</span><div class="grow">La especialidad era texto libre y el sistema podía dar un bus a quien solo maneja camionetas. Lo resuelve <b>M0</b>.</div></div>
+        <div class="item"><span class="rule">L3</span><div class="grow">Un servicio para dentro de un mes dejaba al conductor <b>Ocupado</b> desde hoy. Lo resuelve <b>M5</b>.</div></div>
+      </div>
+      <p class="hint">Además, M2, M3, M4 y M6 reemplazan lo que hoy se hace por WhatsApp y Excel, y M7 completa la información gerencial.</p>
+    </div>
+  </div>
+  <div class="card"><h2>Mejoras de la versión 2.0 ${NW()}</h2>
+    <div class="grid g2">${MEJORAS.map((x) => `<div class="newbox" style="display:flex;flex-direction:column;gap:8px"><div class="row"><span class="nw">${x.m}</span><b>${x.t}</b></div><div>${x.d}</div><div><button class="btn sm pri" data-act="${x.act}">${x.demo}</button></div></div>`).join('')}</div>
+  </div>`;
+}
+
+/* ---------- tablero ---------- */
+function barsH(data, opts = {}) {
+  const max = Math.max(opts.limit || 0, ...data.map((d) => d.v), 1);
+  const rowH = 26, lw = opts.lw || 150, W = 520, cw = W - lw - 40, H = data.length * rowH + 22;
+  const x = (v) => lw + (v / max) * cw;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W * 1.25}px;display:block" role="img" aria-label="${esc(opts.label || 'gráfico')}">`;
+  [0, 0.5, 1].forEach((p) => { s += `<line x1="${x(max * p)}" y1="4" x2="${x(max * p)}" y2="${H - 18}" stroke="var(--line)"/><text x="${x(max * p)}" y="${H - 4}" text-anchor="middle">${Math.round(max * p)}</text>`; });
+  data.forEach((d, i) => {
+    const y = 6 + i * rowH;
+    s += `<text class="lbl" x="${lw - 8}" y="${y + 14}" text-anchor="end">${esc(d.k)}</text><rect x="${lw}" y="${y + 3}" width="${Math.max(2, x(d.v) - lw)}" height="16" rx="3" fill="${d.c || 'var(--info)'}"/><text x="${x(d.v) + 5}" y="${y + 15}">${opts.fmt ? opts.fmt(d.v) : d.v}</text>`;
+  });
+  if (opts.limit) s += `<line x1="${x(opts.limit)}" y1="2" x2="${x(opts.limit)}" y2="${H - 18}" stroke="var(--bad)" stroke-dasharray="4 3"/><text x="${x(opts.limit) - 4}" y="12" text-anchor="end" style="fill:var(--bad)">${opts.limitLabel}</text>`;
+  return s + '</svg>';
+}
+function donut(data) {
+  const tot = data.reduce((t, d) => t + d.v, 0) || 1; let a0 = -Math.PI / 2; const R = 62, r = 38, cx = 80, cy = 80;
+  let s = `<svg class="chart" viewBox="0 0 160 160" width="160" height="160" role="img" aria-label="Solicitudes por estado">`;
+  data.filter((d) => d.v).forEach((d) => {
+    const a1 = a0 + (d.v / tot) * Math.PI * 2 - (d.v === tot ? 0.0001 : 0); const L = a1 - a0 > Math.PI ? 1 : 0;
+    const p = (rad, ang) => `${cx + rad * Math.cos(ang)} ${cy + rad * Math.sin(ang)}`;
+    s += `<path d="M${p(R, a0)} A${R} ${R} 0 ${L} 1 ${p(R, a1)} L${p(r, a1)} A${r} ${r} 0 ${L} 0 ${p(r, a0)}Z" fill="${d.c}"/>`; a0 = a1;
+  });
+  return s + `<text x="80" y="78" text-anchor="middle" class="lbl" style="font-size:22px;font-weight:700">${tot}</text><text x="80" y="96" text-anchor="middle">solicitudes</text></svg>`;
+}
+function vTablero() {
+  const act = S.asignaciones;
+  const docs = S.documentos.filter((d) => { const r = d.titular === 'C' ? cond(d.refId) : veh(d.refId); return r && r.estado !== 'De baja'; });
+  const venc = docs.filter((d) => estadoDoc(d) === 'Vencido').length, pv = docs.filter((d) => estadoDoc(d) === 'Por vencer').length;
+  const alto = S.alertas.filter((a) => a.estado === 'Activa' && a.nivel === 'Alto').length;
+  const estados = [['Pendiente', 'var(--warn)'], ['Asignada', 'var(--info)'], ['Reprogramada', 'var(--new)'], ['Completada', 'var(--ok)'], ['Cancelada', 'var(--bad)']].map(([k, c]) => ({ k, c, v: S.solicitudes.filter((s) => s.estado === k).length }));
+  const topC = S.conductores.map((c) => ({ k: nomC(c), v: act.filter((a) => a.condId === c.id && a.estadoServicio !== 'Cancelado').length })).filter((x) => x.v).sort((a, b) => b.v - a.v).slice(0, 6);
+  // mejoras M7
+  const condAct = S.conductores.filter((c) => c.estado !== 'De baja'), vehAct = S.vehiculos.filter((v) => v.estado !== 'De baja');
+  const hC = condAct.filter((c) => habilitacion('C', c).estado !== 'No habilitado').length, hV = vehAct.filter((v) => habilitacion('V', v).estado !== 'No habilitado').length;
+  const desde = addDays(TODAY, -30);
+  const noAt = S.solicitudes.filter((s) => s.noAtendida).length;
+  const recibidas = S.solicitudes.filter((s) => s.fecha >= desde).length || 1;
+  const horas = condAct.map((c) => ({ k: nomC(c), v: Math.round(horasConductor(c.id, desde, TODAY) * 10) / 10 })).sort((a, b) => b.v - a.v).slice(0, 8)
+    .map((x) => ({ ...x, c: x.v > 0.8 * 120 ? 'var(--bad)' : 'var(--accent)' }));
+  const incid = S.incidencias.filter((i) => i.fecha.slice(0, 10) >= desde).length;
+  const pend = S.valorizaciones.filter((v) => ['Enviada', 'Observada', 'Conforme', 'Facturada'].includes(v.estado)).reduce((t, v) => t + v.monto, 0);
+  const conSalida = act.filter((a) => a.salida); const punt = conSalida.filter((a) => { const s = solx(a.solId); return (new Date(a.salida.replace(' ', 'T')) - inicio(s)) / 6e4 <= 15; }).length;
+  return `
+  <div class="ph"><div><h1>Tablero operativo</h1><p>Indicadores de asignación, documentación y riesgo. Último escaneo automático de alertas: ${fdt(S.ultimoEscaneo)}.</p></div>
+    ${['admin', 'ger'].includes(S.rol) ? '<button class="btn pri" data-act="scan">Actualizar indicadores</button>' : ''}</div>
+  <div class="grid g3">
+    <div class="kpi info"><span class="l">Total de asignaciones</span><span class="v">${act.length}</span></div>
+    <div class="kpi ok"><span class="l">Asignaciones aprobadas</span><span class="v">${act.filter((a) => a.veredicto === 'Aprobada').length}</span><span class="s">${act.filter((a) => a.veredicto === 'Observada').length} observadas</span></div>
+    <div class="kpi bad"><span class="l">Validaciones rechazadas</span><span class="v">${S.rechazos}</span><span class="s">Intentos manuales bloqueados por las reglas</span></div>
+    <div class="kpi bad"><span class="l">Documentos vencidos</span><span class="v">${venc}</span></div>
+    <div class="kpi warn"><span class="l">Documentos por vencer</span><span class="v">${pv}</span></div>
+    <div class="kpi bad"><span class="l">Alertas de riesgo alto</span><span class="v">${alto}</span></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><h2>Solicitudes por estado</h2><div class="row" style="gap:20px">${donut(estados)}<div class="legend" style="flex-direction:column">${estados.map((e) => `<span><i style="background:${e.c}"></i>${e.k}: <b class="num">${e.v}</b></span>`).join('')}</div></div></div>
+    <div class="card"><h2>Conductores con más asignaciones</h2>${barsH(topC, { label: 'Asignaciones por conductor' })}</div>
+  </div>
+  <div class="card"><h2>Indicadores gerenciales ampliados ${NW('M7')}</h2>
+    <div class="grid g4">
+      <div class="kpi nv"><span class="l">Conductores habilitados</span><span class="v">${Math.round(100 * hC / condAct.length)} %</span><span class="s">${hC} de ${condAct.length}</span></div>
+      <div class="kpi nv"><span class="l">Vehículos habilitados</span><span class="v">${Math.round(100 * hV / vehAct.length)} %</span><span class="s">${hV} de ${vehAct.length}</span></div>
+      <div class="kpi nv"><span class="l">Demanda no atendida</span><span class="v">${noAt}</span><span class="s">${Math.round(100 * noAt / recibidas)} % de las solicitudes del periodo</span></div>
+      <div class="kpi nv"><span class="l">Por cobrar</span><span class="v" style="font-size:22px">${money(pend)}</span><span class="s">Valorizaciones enviadas, conformes o facturadas</span></div>
+      <div class="kpi nv"><span class="l">Incidencias (30 días)</span><span class="v">${incid}</span></div>
+      <div class="kpi nv"><span class="l">Puntualidad de salida</span><span class="v">${conSalida.length ? Math.round(100 * punt / conSalida.length) : 0} %</span><span class="s">Salidas hasta 15 min después de la hora</span></div>
+      <div class="kpi nv"><span class="l">Checklists no aptos</span><span class="v">${act.filter((a) => a.checklist && a.checklist.resultado === 'No apto').length}</span></div>
+      <div class="kpi nv"><span class="l">Servicios en ruta</span><span class="v">${act.filter((a) => a.estadoServicio === 'En ruta').length}</span></div>
+    </div>
+    <h3 style="margin-top:18px">Horas de manejo por conductor, últimos 30 días</h3>
+    ${barsH(horas, { label: 'Horas de manejo', limit: 120, limitLabel: 'Referencia: 120 h al mes', fmt: (v) => v + ' h' })}
+    <p class="hint">Con un límite de ${LIMITE_SEMANA_H} h por semana, la referencia mensual es de unas 120 h. Las barras rojas superan el 80 % de esa referencia.</p>
+  </div>`;
+}
+
+/* ---------- conductores ---------- */
+function vConductores() {
+  const f = S.ui.filtros; const q = (f.cq || '').toLowerCase();
+  const lista = S.conductores.filter((c) => (!q || `${c.nombres} ${c.apellidos} ${c.dni}`.toLowerCase().includes(q)) && (!f.ce || c.estado === f.ce) && (!f.ct || c.tipos.includes(f.ct)) && (!f.ch || habilitacion('C', c).estado === f.ch));
+  return `
+  <div class="ph"><div><h1>Conductores</h1><p>${S.conductores.length} conductores registrados. La habilitación se calcula con los documentos exigidos.</p></div>${isAdmin() ? '<button class="btn pri" data-act="cond-new">Registrar conductor</button>' : ''}</div>
+  <div class="card toolbar">
+    <div class="f"><label for="cq">Buscar por nombre o DNI</label><input type="text" id="cq" data-filter="cq" value="${esc(f.cq || '')}" placeholder="Ej. Quispe"></div>
+    <div class="f"><label for="ce">Estado</label><select id="ce" data-filter="ce"><option value="">Todos</option>${['Disponible', 'No apto', 'De vacaciones', 'De baja'].map((e) => `<option ${f.ce === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+    <div class="f"><label for="ct">Tipo que maneja ${NW()}</label><select id="ct" data-filter="ct"><option value="">Todos</option>${S.tipos.map((t) => `<option value="${t.id}" ${f.ct === t.id ? 'selected' : ''}>${t.nombre}</option>`).join('')}</select></div>
+    <div class="f"><label for="ch">Habilitación ${NW()}</label><select id="ch" data-filter="ch"><option value="">Todas</option>${['Habilitado', 'Con observaciones', 'No habilitado'].map((e) => `<option ${f.ch === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Conductor</th><th>DNI / Licencia</th><th>Tipos que maneja ${NW('M0')}</th><th>Experiencia</th><th>Estado</th><th>Habilitación ${NW('M1')}</th><th></th></tr></thead><tbody>
+  ${lista.map((c) => `<tr><td><b>${esc(nomC(c))}</b><div class="sub">${esc(c.tel)}</div></td><td class="mono">${c.dni}<div class="sub">${c.licencia} · ${c.cat}</div></td>
+    <td><div class="row" style="gap:4px">${c.tipos.map((t) => `<span class="chip c-acc">${tipo(t).nombre}</span>`).join('')}</div></td><td class="num">${yearsSince(c.fLic)} años</td>
+    <td><span class="chip ${c.estado === 'Disponible' ? 'c-ok' : c.estado === 'De baja' ? 'c-mut' : 'c-warn'}">${c.estado}</span></td><td>${chipHab(habilitacion('C', c))}</td>
+    <td><button class="btn sm" data-act="cond-ver" data-id="${c.id}">Ver ficha</button></td></tr>`).join('') || '<tr><td colspan="7">No hay conductores con esos filtros.</td></tr>'}
+  </tbody></table></div>
+  <p class="hint">Antes, en la versión 1.0, la especialidad era un texto libre ("Camioneta y Bus") que el sistema no podía usar para validar.</p>`;
+}
+function formConductor(c) {
+  c = c || { nombres: '', apellidos: '', dni: '', licencia: '', cat: 'A-IIa', fLic: '', tipos: [], estado: 'Disponible', tel: '', ingreso: TODAY };
+  modal(c.id ? `Editar conductor: ${esc(nomC(c))}` : 'Registrar conductor', `
+  <form data-form="cond" data-id="${c.id || ''}" class="fg">
+    <div class="f"><label for="fn">Nombres</label><input type="text" id="fn" name="nombres" required value="${esc(c.nombres)}"></div>
+    <div class="f"><label for="fa">Apellidos</label><input type="text" id="fa" name="apellidos" required value="${esc(c.apellidos)}"></div>
+    <div class="f"><label for="fdni">DNI</label><input type="text" id="fdni" name="dni" required maxlength="8" pattern="[0-9]{8}" value="${esc(c.dni)}"></div>
+    <div class="f"><label for="flic">Número de licencia</label><input type="text" id="flic" name="licencia" required value="${esc(c.licencia)}"></div>
+    <div class="f"><label for="fcat">Categoría de licencia ${NW()}</label><select id="fcat" name="cat">${CATS.map((k) => `<option ${c.cat === k ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
+    <div class="f"><label for="ffl">Fecha de obtención de la licencia ${NW()}</label><input type="date" id="ffl" name="fLic" required value="${c.fLic}"></div>
+    <div class="f full"><label>Tipos de vehículo que maneja ${NW('M0')}</label><div class="checks">${S.tipos.filter((t) => t.activo).map((t) => `<label class="ck"><input type="checkbox" name="tipos" value="${t.id}" ${c.tipos.includes(t.id) ? 'checked' : ''}>${t.nombre} <span class="hint">(${t.expMin} años, ${t.cat})</span></label>`).join('')}</div>
+      <span class="hint">Marca todos los que corresponda. El sistema valida experiencia y categoría por cada tipo.</span></div>
+    <div class="f"><label for="fes">Estado</label><select id="fes" name="estado">${['Disponible', 'No apto', 'De vacaciones', 'De baja'].map((e) => `<option ${c.estado === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+    <div class="f"><label for="ftel">Teléfono</label><input type="text" id="ftel" name="tel" value="${esc(c.tel)}"></div>
+    <div class="f full err" id="ferr"></div>
+    <div class="f full"><div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn pri">Guardar</button></div></div>
+  </form>`, true);
+}
+function guardarConductor(form) {
+  const fdta = new FormData(form); const id = form.dataset.id;
+  const tipos = fdta.getAll('tipos'); const errs = [];
+  const cat = fdta.get('cat'), fLic = fdta.get('fLic'), dni = fdta.get('dni').trim();
+  if (!tipos.length) errs.push('Marca al menos un tipo de vehículo.');
+  tipos.forEach((t) => { const tv = tipo(t); if (CATS.indexOf(cat) < CATS.indexOf(tv.cat)) errs.push(`${tv.nombre} exige categoría ${tv.cat} o superior; la licencia es ${cat}.`); if (yearsSince(fLic) < tv.expMin) errs.push(`${tv.nombre} exige ${tv.expMin} años de experiencia; tiene ${yearsSince(fLic)}.`); });
+  if (S.conductores.some((c) => c.dni === dni && c.id !== id)) errs.push('Ya existe un conductor con ese DNI.');
+  if (errs.length) { $('#ferr').innerHTML = errs.map(esc).join('<br>'); return; }
+  const data = { nombres: fdta.get('nombres').trim(), apellidos: fdta.get('apellidos').trim(), dni, licencia: fdta.get('licencia').trim(), cat, fLic, tipos, estado: fdta.get('estado'), tel: fdta.get('tel') };
+  if (id) Object.assign(cond(id), data); else S.conductores.push({ id: uid('C'), ingreso: TODAY, ...data });
+  closeModal(); save(); render(); toast('Conductor guardado.', 'ok');
+}
+function fichaRecurso(tit, r) {
+  const h = habilitacion(tit, r);
+  const reqs = docsRequeridos(tit, r);
+  const filas = reqs.map((t) => {
+    const d = docDe(tit, r.id, t.id);
+    const e = d ? estadoDoc(d) : 'Falta';
+    const cls = e === 'Vigente' ? 'c-ok' : e === 'Por vencer' ? 'c-warn' : 'c-bad';
+    return `<tr><td><b>${t.nombre}</b> ${t.v1 ? '' : NW()}<div class="sub">${t.bloq ? 'Bloqueante' : 'No bloqueante'}${t.tipos.length ? ' · solo ' + t.tipos.map((x) => tipo(x).nombre).join(', ') : ''}</div></td>
+      <td class="num">${d ? fd(d.emision) : '—'}</td><td class="num">${d ? (d.vence ? fd(d.vence) : 'No vence') : '—'}</td><td><span class="chip ${cls}">${e}</span></td>
+      <td>${d ? (d.mina === 'Pendiente' ? `<span class="chip c-warn">En revisión</span>${isAdmin() || S.rol === 'sup' ? ` <button class="btn sm ok" data-act="mina-ok" data-id="${d.id}">Marcar aprobado</button>` : ''}` : '<span class="chip c-ok">Aprobado</span>') : '—'}</td>
+      <td>${isAdmin() || S.rol === 'sup' ? `<button class="btn sm" data-act="doc-new" data-tit="${tit}" data-ref="${r.id}" data-tipo="${t.id}">${d ? 'Renovar' : 'Registrar'}</button>` : ''}</td></tr>`;
+  }).join('');
+  return `<div class="verdict ${h.estado === 'Habilitado' ? 'v-ok' : h.estado === 'No habilitado' ? 'v-bad' : 'v-warn'}"><b>${h.estado} ${NW('M1')}</b>
+    <span>${h.estado === 'Habilitado' ? 'Tiene todos los documentos exigidos vigentes y aprobados por la mina.' : esc([...h.faltan.map((x) => 'Falta ' + x), ...h.vencidos.map((x) => x + ' vencido'), ...h.mina.map((x) => x + ' en revisión de mina'), ...h.porVencer.map((x) => `${x.nombre} vence en ${x.dias} días`), ...h.noBloq.map((x) => x + ' (no bloqueante)')].join(' · '))}</span></div>
+    <div class="tw"><table><thead><tr><th>Documento exigido</th><th>Emisión</th><th>Vencimiento</th><th>Estado</th><th>Visto bueno de mina ${NW()}</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`;
+}
+function verConductor(id) {
+  const c = cond(id); const desde = addDays(TODAY, -30);
+  const prox = S.asignaciones.filter((a) => a.condId === id && a.estadoServicio !== 'Cancelado' && solx(a.solId).fecha >= TODAY).map((a) => solx(a.solId)).sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora))[0];
+  modal(`Ficha del conductor: ${esc(nomC(c))}`, `
+    <div class="grid g3">
+      <div><div class="hint">DNI / Licencia</div><div class="mono">${c.dni} · ${c.licencia} (${c.cat})</div></div>
+      <div><div class="hint">Experiencia</div><div>${yearsSince(c.fLic)} años desde ${fd(c.fLic)}</div></div>
+      <div><div class="hint">Estado</div><div>${c.estado}</div></div>
+      <div><div class="hint">Tipos que maneja ${NW('M0')}</div><div class="row" style="gap:4px">${c.tipos.map((t) => `<span class="chip c-acc">${tipo(t).nombre}</span>`).join('')}</div></div>
+      <div><div class="hint">Horas de manejo, 30 días ${NW('M5')}</div><div class="num">${Math.round(horasConductor(id, desde, TODAY) * 10) / 10} h</div></div>
+      <div><div class="hint">Próximo servicio</div><div>${prox ? `${prox.id} · ${fd(prox.fecha)} ${prox.hora}` : 'Ninguno programado'}</div></div>
+    </div>
+    ${fichaRecurso('C', c)}
+    <div class="row" style="justify-content:flex-end">${isAdmin() ? `<button class="btn dan" data-act="cond-baja" data-id="${id}">Dar de baja</button><button class="btn" data-act="cond-edit" data-id="${id}">Editar datos</button>` : ''}<button class="btn" data-act="close">Cerrar</button></div>`, true);
+}
+
+/* ---------- vehículos ---------- */
+function vVehiculos() {
+  const f = S.ui.filtros; const q = (f.vq || '').toLowerCase();
+  const lista = S.vehiculos.filter((v) => (!q || `${v.placa} ${v.marca} ${v.modelo}`.toLowerCase().includes(q)) && (!f.vt || v.tipoId === f.vt) && (!f.ve || v.estado === f.ve));
+  return `
+  <div class="ph"><div><h1>Vehículos</h1><p>${S.vehiculos.length} unidades. Cada unidad tiene un solo tipo, elegido del catálogo.</p></div>${isAdmin() ? '<button class="btn pri" data-act="veh-new">Registrar vehículo</button>' : ''}</div>
+  <div class="card toolbar">
+    <div class="f"><label for="vq">Buscar por placa o modelo</label><input type="text" id="vq" data-filter="vq" value="${esc(f.vq || '')}" placeholder="Ej. F7B"></div>
+    <div class="f"><label for="vt">Tipo</label><select id="vt" data-filter="vt"><option value="">Todos</option>${S.tipos.map((t) => `<option value="${t.id}" ${f.vt === t.id ? 'selected' : ''}>${t.nombre}</option>`).join('')}</select></div>
+    <div class="f"><label for="ve">Estado</label><select id="ve" data-filter="ve"><option value="">Todos</option>${['Disponible', 'En mantenimiento', 'De baja'].map((e) => `<option ${f.ve === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Placa</th><th>Tipo ${NW('M0')}</th><th>Marca y modelo</th><th>Asientos</th><th>Estado</th><th>Uso 30 días</th><th>Habilitación ${NW('M1')}</th><th></th></tr></thead><tbody>
+  ${lista.map((v) => `<tr><td class="mono"><b>${v.placa}</b></td><td><span class="chip c-acc">${tipo(v.tipoId).nombre}</span></td><td>${esc(v.marca)} ${esc(v.modelo)}<div class="sub">${v.anio}</div></td><td class="num">${v.asientos}</td>
+    <td><span class="chip ${v.estado === 'Disponible' ? 'c-ok' : v.estado === 'De baja' ? 'c-mut' : 'c-warn'}">${v.estado}</span></td><td class="num">${Math.round(usoVeh(v.id))} h</td><td>${chipHab(habilitacion('V', v))}</td>
+    <td><button class="btn sm" data-act="veh-ver" data-id="${v.id}">Ver ficha</button></td></tr>`).join('') || '<tr><td colspan="8">No hay unidades con esos filtros.</td></tr>'}
+  </tbody></table></div>`;
+}
+function formVehiculo(v) {
+  v = v || { placa: '', tipoId: '', marca: '', modelo: '', anio: 2024, asientos: '', estado: 'Disponible' };
+  modal(v.id ? `Editar vehículo ${v.placa}` : 'Registrar vehículo', `
+  <form data-form="veh" data-id="${v.id || ''}" class="fg">
+    <div class="f"><label for="vp">Placa</label><input type="text" id="vp" name="placa" required pattern="[A-Za-z0-9]{3}-[0-9]{3}" placeholder="ABC-123" value="${esc(v.placa)}"></div>
+    <div class="f"><label for="vtp">Tipo de vehículo ${NW('M0')}</label><select id="vtp" name="tipoId" required><option value="">Elige un tipo</option>${S.tipos.filter((t) => t.activo || t.id === v.tipoId).map((t) => `<option value="${t.id}" ${v.tipoId === t.id ? 'selected' : ''}>${t.nombre}</option>`).join('')}</select><span class="hint">Una unidad tiene un solo tipo.</span></div>
+    <div class="f"><label for="vm">Marca</label><input type="text" id="vm" name="marca" required value="${esc(v.marca)}"></div>
+    <div class="f"><label for="vmo">Modelo</label><input type="text" id="vmo" name="modelo" required value="${esc(v.modelo)}"></div>
+    <div class="f"><label for="va">Año de fabricación</label><input type="number" id="va" name="anio" min="1990" max="2027" required value="${v.anio}"></div>
+    <div class="f"><label for="vas">N.° de asientos</label><input type="number" id="vas" name="asientos" min="1" max="70" required value="${v.asientos}"></div>
+    <div class="f"><label for="ves">Estado</label><select id="ves" name="estado">${['Disponible', 'En mantenimiento', 'De baja'].map((e) => `<option ${v.estado === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+    <div class="f full err" id="ferr"></div>
+    <div class="f full"><div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn pri">Guardar</button></div></div>
+  </form>`);
+}
+function guardarVehiculo(form) {
+  const d = Object.fromEntries(new FormData(form)); const id = form.dataset.id;
+  d.placa = d.placa.toUpperCase(); d.anio = +d.anio; d.asientos = +d.asientos;
+  if (S.vehiculos.some((v) => v.placa === d.placa && v.id !== id)) { $('#ferr').textContent = 'Ya existe una unidad con esa placa.'; return; }
+  if (id) Object.assign(veh(id), d); else S.vehiculos.push({ id: uid('V'), ...d });
+  closeModal(); save(); render(); toast('Vehículo guardado.', 'ok');
+}
+function verVehiculo(id) {
+  const v = veh(id);
+  modal(`Ficha del vehículo ${v.placa}`, `
+    <div class="grid g3"><div><div class="hint">Tipo</div><div>${tipo(v.tipoId).nombre}</div></div><div><div class="hint">Marca y modelo</div><div>${esc(v.marca)} ${esc(v.modelo)} (${v.anio})</div></div><div><div class="hint">Asientos / Estado</div><div>${v.asientos} · ${v.estado}</div></div></div>
+    ${fichaRecurso('V', v)}
+    <div class="row" style="justify-content:flex-end">${isAdmin() ? `<button class="btn" data-act="veh-edit" data-id="${id}">Editar datos</button>` : ''}<button class="btn" data-act="close">Cerrar</button></div>`, true);
+}
+
+/* ---------- documentos ---------- */
+function vDocumentos() {
+  const f = S.ui.filtros;
+  const filas = S.documentos.map((d) => ({ d, t: tdoc(d.tipoDocId), r: d.titular === 'C' ? cond(d.refId) : veh(d.refId), e: estadoDoc(d) }))
+    .filter((x) => x.r && x.t && (!f.de || x.e === f.de) && (!f.dt || x.d.titular === f.dt) && (!f.dm || x.d.mina === f.dm))
+    .sort((a, b) => ({ Vencido: 0, 'Por vencer': 1, Vigente: 2 }[a.e] - { Vencido: 0, 'Por vencer': 1, Vigente: 2 }[b.e]) || (a.d.vence || '9').localeCompare(b.d.vence || '9'));
+  return `
+  <div class="ph"><div><h1>Control documental</h1><p>El estado se calcula al guardar cada documento, con los días de anticipación de su tipo.</p></div><button class="btn pri" data-act="doc-new">Registrar documento</button></div>
+  <div class="card toolbar">
+    <div class="f"><label for="de">Estado</label><select id="de" data-filter="de"><option value="">Todos</option>${['Vencido', 'Por vencer', 'Vigente'].map((e) => `<option ${f.de === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+    <div class="f"><label for="dt">Titular</label><select id="dt" data-filter="dt"><option value="">Conductores y vehículos</option><option value="C" ${f.dt === 'C' ? 'selected' : ''}>Conductores</option><option value="V" ${f.dt === 'V' ? 'selected' : ''}>Vehículos</option></select></div>
+    <div class="f"><label for="dm">Visto bueno de mina ${NW()}</label><select id="dm" data-filter="dm"><option value="">Todos</option><option ${f.dm === 'Pendiente' ? 'selected' : ''}>Pendiente</option><option ${f.dm === 'Aprobado' ? 'selected' : ''}>Aprobado</option></select></div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Titular</th><th>Documento</th><th>Emisión</th><th>Vencimiento</th><th>Estado</th><th>Mina ${NW('M1')}</th><th></th></tr></thead><tbody>
+  ${filas.slice(0, 80).map(({ d, t, r, e }) => `<tr><td>${d.titular === 'C' ? esc(nomC(r)) : `<span class="mono">${r.placa}</span>`}<div class="sub">${d.titular === 'C' ? 'Conductor' : tipo(r.tipoId).nombre}</div></td><td>${t.nombre} ${t.v1 ? '' : NW()}</td>
+    <td class="num">${fd(d.emision)}</td><td class="num">${d.vence ? fd(d.vence) : 'No vence'}</td><td><span class="chip ${e === 'Vigente' ? 'c-ok' : e === 'Por vencer' ? 'c-warn' : 'c-bad'}">${e}</span></td>
+    <td>${d.mina === 'Pendiente' ? `<span class="chip c-warn">En revisión</span> <button class="btn sm ok" data-act="mina-ok" data-id="${d.id}">Aprobado</button>` : '<span class="chip c-ok">Aprobado</span>'}</td>
+    <td><button class="btn sm" data-act="doc-new" data-tit="${d.titular}" data-ref="${d.refId}" data-tipo="${d.tipoDocId}">Renovar</button></td></tr>`).join('')}
+  </tbody></table></div>
+  <p class="hint">Se muestran ${Math.min(80, filas.length)} de ${filas.length} documentos, primero los vencidos y por vencer.</p>`;
+}
+function formDocumento(tit, ref, tipoId) {
+  const opts = (t) => (t === 'C' ? S.conductores.map((c) => `<option value="${c.id}" ${ref === c.id ? 'selected' : ''}>${esc(nomC(c))}</option>`) : S.vehiculos.map((v) => `<option value="${v.id}" ${ref === v.id ? 'selected' : ''}>${v.placa} · ${tipo(v.tipoId).nombre}</option>`)).join('');
+  tit = tit || 'C';
+  modal('Registrar o renovar documento', `
+  <form data-form="doc" class="fg">
+    <div class="f"><label for="dtit">Titular</label><select id="dtit" name="titular"><option value="C" ${tit === 'C' ? 'selected' : ''}>Conductor</option><option value="V" ${tit === 'V' ? 'selected' : ''}>Vehículo</option></select></div>
+    <div class="f"><label for="dref">${tit === 'C' ? 'Conductor' : 'Vehículo'}</label><select id="dref" name="refId">${opts(tit)}</select></div>
+    <div class="f full"><label for="dtd">Tipo de documento</label><select id="dtd" name="tipoDocId">${S.tiposDoc.filter((t) => t.aplica === tit && t.activo !== false).map((t) => `<option value="${t.id}" ${tipoId === t.id ? 'selected' : ''}>${t.nombre}${t.vence ? '' : ' (no vence)'}</option>`).join('')}</select></div>
+    <div class="f"><label for="dem">Fecha de emisión</label><input type="date" id="dem" name="emision" required value="${TODAY}"></div>
+    <div class="f"><label for="dve">Fecha de vencimiento</label><input type="date" id="dve" name="vence" value="${addDays(TODAY, 365)}"><span class="hint">Déjala vacía solo si el documento no vence.</span></div>
+    <div class="f full"><label class="ck"><input type="checkbox" name="mina" value="1" checked> Ya fue cargado en 2personnal y espera el visto bueno de la mina ${NW('M1')}</label></div>
+    <div class="f full"><label for="dfile">Archivo adjunto (PDF o imagen)</label><input type="text" id="dfile" placeholder="En el prototipo el archivo se simula" disabled></div>
+    <div class="f full err" id="ferr"></div>
+    <div class="f full"><div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn pri">Guardar documento</button></div></div>
+  </form>`);
+  $('#dtit').onchange = (e) => { const r = $('#dref'); r.innerHTML = opts(e.target.value); $('label[for=dref]').textContent = e.target.value === 'C' ? 'Conductor' : 'Vehículo';
+    $('#dtd').innerHTML = S.tiposDoc.filter((t) => t.aplica === e.target.value && t.activo !== false).map((t) => `<option value="${t.id}">${t.nombre}</option>`).join(''); };
+}
+function guardarDocumento(form) {
+  const d = Object.fromEntries(new FormData(form)); const t = tdoc(d.tipoDocId);
+  if (t.vence && !d.vence) { $('#ferr').textContent = `${t.nombre} tiene vencimiento: ingresa la fecha.`; return; }
+  if (d.vence && d.vence < d.emision) { $('#ferr').textContent = 'El vencimiento no puede ser anterior a la emisión.'; return; }
+  S.documentos.push({ id: uid('DOC'), titular: d.titular, refId: d.refId, tipoDocId: d.tipoDocId, emision: d.emision, vence: t.vence ? d.vence : null, archivo: true, mina: d.mina ? 'Pendiente' : 'Aprobado' });
+  const r = escanear(); closeModal(); save(); render();
+  toast(`Documento guardado con estado ${estadoDoc(S.documentos[S.documentos.length - 1])}.${r.res ? ` ${r.res} alerta(s) resuelta(s) automáticamente.` : ''}`, 'ok');
+}
+
+/* ---------- alertas ---------- */
+function vAlertas() {
+  const f = S.ui.filtros;
+  const ord = { Alto: 0, Medio: 1, Bajo: 2 };
+  const lista = S.alertas.filter((a) => a.estado === 'Activa' && (!f.an || a.nivel === f.an) && (!f.at || a.tipo === f.at)).sort((a, b) => ord[a.nivel] - ord[b.nivel]);
+  const tipos = [...new Set(S.alertas.map((a) => a.tipo))];
+  return `
+  <div class="ph"><div><h1>Panel de alertas</h1><p>${lista.length} alertas activas. El escaneo corre automáticamente una vez al día; último: ${fdt(S.ultimoEscaneo)}.</p></div><button class="btn pri" data-act="scan">Escanear ahora</button></div>
+  <div class="card toolbar">
+    <div class="f"><label for="an">Nivel de riesgo</label><select id="an" data-filter="an"><option value="">Todos</option>${['Alto', 'Medio'].map((e) => `<option ${f.an === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+    <div class="f"><label for="at">Tipo de alerta</label><select id="at" data-filter="at"><option value="">Todos</option>${tipos.map((e) => `<option ${f.at === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Riesgo</th><th>Tipo</th><th>Mensaje</th><th>Generada</th><th></th></tr></thead><tbody>
+  ${lista.map((a) => `<tr><td><span class="chip ${a.nivel === 'Alto' ? 'c-bad' : 'c-warn'}">${a.nivel}</span></td><td>${a.tipo} ${['Documento faltante', 'Pendiente de visto bueno de mina', 'Cobro pendiente', 'Conductor o unidad no apta', 'Incidencia grave'].includes(a.tipo) ? NW() : ''}</td><td>${esc(a.msg)}</td><td class="num">${fdt(a.fecha)}</td><td><button class="btn sm ok" data-act="al-res" data-id="${a.id}">Resolver</button></td></tr>`).join('') || '<tr><td colspan="5">No hay alertas activas.</td></tr>'}
+  </tbody></table></div>`;
+}
+
+/* ---------- solicitudes ---------- */
+const chipSol = (e) => `<span class="chip ${{ Pendiente: 'c-warn', Asignada: 'c-info', Reprogramada: 'c-acc', Completada: 'c-ok', Cancelada: 'c-bad' }[e] || 'c-mut'}">${e}</span>`;
+function vSolicitudes() {
+  const f = S.ui.filtros;
+  const lista = S.solicitudes.filter((s) => (!f.se || s.estado === f.se) && (!f.sp || s.prioridad === f.sp)).sort((a, b) => (b.fecha + b.hora).localeCompare(a.fecha + a.hora));
+  return `
+  <div class="ph"><div><h1>Solicitudes de servicio</h1><p>El estado ya no se edita a mano: lo cambian la asignación, la ejecución o la cancelación.</p></div>${isAdmin() ? '<button class="btn pri" data-act="sol-new">Registrar solicitud</button>' : ''}</div>
+  <div class="card toolbar">
+    <div class="f"><label for="se">Estado</label><select id="se" data-filter="se"><option value="">Todos</option>${['Pendiente', 'Asignada', 'Reprogramada', 'Completada', 'Cancelada'].map((e) => `<option ${f.se === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+    <div class="f"><label for="sp">Prioridad</label><select id="sp" data-filter="sp"><option value="">Todas</option>${['Alta', 'Media', 'Baja'].map((e) => `<option ${f.sp === e ? 'selected' : ''}>${e}</option>`).join('')}</select></div>
+  </div>
+  <div class="tw"><table><thead><tr><th>N.°</th><th>Cliente</th><th>Fecha y hora</th><th>Ruta</th><th>Unidad y pasajeros</th><th>Prioridad</th><th>Estado</th><th></th></tr></thead><tbody>
+  ${lista.map((s) => `<tr><td class="mono"><b>${s.id}</b></td><td>${esc(cli(s.clienteId).razon)}<div class="sub">${s.servicio}</div></td><td class="num">${fd(s.fecha)} ${s.hora}<div class="sub">${s.duracion} h estimadas</div></td><td>${esc(s.origen)} → ${esc(s.destino)}</td>
+    <td>${tipo(s.tipoId).nombre}<div class="sub">${s.pasajeros} pasajeros ${NW()}</div></td><td>${s.prioridad}</td><td>${chipSol(s.estado)}${S.cambios.some((c) => c.solId === s.id) ? ` <span class="nw">Con cambios</span>` : ''}</td>
+    <td><div class="row" style="gap:4px"><button class="btn sm" data-act="sol-ver" data-id="${s.id}">Línea de tiempo</button>${isAdmin() && !['Completada', 'Cancelada'].includes(s.estado) ? `<button class="btn sm" data-act="sol-edit" data-id="${s.id}">Editar</button>` : ''}</div></td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+function formSolicitud(s) {
+  const nueva = !s; s = s || { clienteId: 'K1', fecha: addDays(TODAY, 2), hora: '06:00', duracion: 8, origen: 'Juliaca', destino: 'U.M. Cerro Azul', servicio: 'Traslado de personal', tipoId: 'T2', pasajeros: 10, prioridad: 'Media', monto: '' };
+  modal(nueva ? 'Registrar solicitud de servicio' : `Editar solicitud ${s.id}`, `
+  <form data-form="sol" data-id="${s.id || ''}" class="fg">
+    <div class="f full"><label for="sk">Cliente</label><select id="sk" name="clienteId">${S.clientes.map((k) => `<option value="${k.id}" ${s.clienteId === k.id ? 'selected' : ''}>${esc(k.razon)} · RUC ${k.ruc}</option>`).join('')}</select></div>
+    <div class="f"><label for="sf">Fecha</label><input type="date" id="sf" name="fecha" required value="${s.fecha}"></div>
+    <div class="f"><label for="sh">Hora</label><input type="time" id="sh" name="hora" required value="${s.hora}"></div>
+    <div class="f"><label for="so">Origen</label><input type="text" id="so" name="origen" required value="${esc(s.origen)}"></div>
+    <div class="f"><label for="sd">Destino</label><input type="text" id="sd" name="destino" required value="${esc(s.destino)}"></div>
+    <div class="f"><label for="sv">Tipo de servicio</label><select id="sv" name="servicio">${['Traslado de personal', 'Alquiler de unidad'].map((x) => `<option ${s.servicio === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+    <div class="f"><label for="spr">Prioridad</label><select id="spr" name="prioridad">${['Alta', 'Media', 'Baja'].map((x) => `<option ${s.prioridad === x ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+    <div class="f"><label for="st">Tipo de vehículo requerido</label><select id="st" name="tipoId">${S.tipos.filter((t) => t.activo).map((t) => `<option value="${t.id}" ${s.tipoId === t.id ? 'selected' : ''}>${t.nombre} (${t.asientos} asientos)</option>`).join('')}</select></div>
+    <div class="f"><label for="spa">Cantidad de pasajeros ${NW()}</label><input type="number" id="spa" name="pasajeros" min="1" max="60" required value="${s.pasajeros}"></div>
+    <div class="f"><label for="sdu">Duración estimada (horas) ${NW('M5')}</label><input type="number" id="sdu" name="duracion" min="1" max="24" step="0.5" required value="${s.duracion}"></div>
+    <div class="f"><label for="smo">Monto acordado (S/) ${NW('M6')}</label><input type="number" id="smo" name="monto" min="0" step="10" value="${s.monto}" placeholder="Se propone desde la tarifa"></div>
+    ${nueva ? '' : '<div class="f full newbox">Cada campo que cambies quedará en la bitácora con tu nombre y la hora, y se avisará al conductor asignado. ' + NW('M2') + '</div>'}
+    <div class="f full"><div class="row" style="justify-content:flex-end">${!nueva && isAdmin() ? `<button type="button" class="btn dan" data-act="sol-cancel" data-id="${s.id}">Cancelar solicitud</button>` : ''}<button type="button" class="btn" data-act="close">Cerrar</button><button class="btn pri">Guardar</button></div></div>
+  </form>`, true);
+}
+const CAMPOS = { clienteId: 'Cliente', fecha: 'Fecha', hora: 'Hora', origen: 'Origen', destino: 'Destino', servicio: 'Tipo de servicio', prioridad: 'Prioridad', tipoId: 'Tipo de vehículo', pasajeros: 'Pasajeros', duracion: 'Duración', monto: 'Monto acordado' };
+function guardarSolicitud(form) {
+  const d = Object.fromEntries(new FormData(form)); const id = form.dataset.id;
+  d.pasajeros = +d.pasajeros; d.duracion = +d.duracion;
+  const t = S.tarifas.find((r) => r.origen === d.origen && r.destino === d.destino && r.tipoId === d.tipoId);
+  d.monto = d.monto === '' ? (t ? t.base : 0) : +d.monto;
+  if (!id) {
+    const s = { id: 'S' + (114 + S.solicitudes.length - 13), ...d, estado: 'Pendiente', creada: nowStamp(), motivo: '' };
+    while (solx(s.id)) s.id = 'S' + (+s.id.slice(1) + 1);
+    S.solicitudes.push(s); closeModal(); save(); render(); toast(`Solicitud ${s.id} registrada como Pendiente${t ? ` con tarifa de ${money(t.base)}` : ''}.`, 'ok'); return;
+  }
+  const s = solx(id); const cambios = [];
+  Object.keys(CAMPOS).forEach((k) => { if (String(s[k]) !== String(d[k])) { const fmt = (v) => k === 'clienteId' ? cli(v).razon : k === 'tipoId' ? tipo(v).nombre : k === 'fecha' ? fd(v) : v; cambios.push({ id: uid('CB'), solId: id, campo: CAMPOS[k], antes: fmt(s[k]), despues: fmt(d[k]), usuario: ROLES[S.rol].usuario, fecha: nowStamp() }); } });
+  if (!cambios.length) { closeModal(); toast('No hubo cambios.'); return; }
+  Object.assign(s, d); S.cambios.push(...cambios);
+  const a = asigActiva(id);
+  if (a) {
+    notificar(a.condId, `Cambio en tu servicio ${id}: ${cambios.map((c) => `${c.campo.toLowerCase()} ${c.antes} → ${c.despues}`).join('; ')}.`);
+    const r = validar(s, cond(a.condId), veh(a.vehId));
+    if (r.veredicto === 'Rechazada') alertar('Alto', 'Asignación inválida tras cambio', `${id}: el cambio genera bloqueos (${r.bloqueos.map((b) => b.code).join(', ')}). Reasigne el servicio.`, `X-${id}-${Date.now()}`);
+  }
+  closeModal(); save(); render(); toast(`${cambios.length} cambio(s) registrados en la bitácora${a ? ' y notificados al conductor' : ''}.`, 'ok');
+}
+function verSolicitud(id) {
+  const s = solx(id); const ev = [];
+  ev.push({ f: s.creada, c: '', t: 'Solicitud registrada', d: `${esc(cli(s.clienteId).razon)} · ${tipo(s.tipoId).nombre}, ${s.pasajeros} pasajeros` });
+  S.asignaciones.filter((a) => a.solId === id).forEach((a) => {
+    ev.push({ f: a.creada, c: 'acc', t: `Asignación ${a.origen ? a.origen.toLowerCase() + ' ' : ''}${a.veredicto}`, d: `${esc(nomC(cond(a.condId)))} con ${veh(a.vehId).placa}${a.obs.length ? ' · ' + esc(a.obs.join('; ')) : ''}` });
+    if (a.checklist && a.checklist.fecha) ev.push({ f: a.checklist.fecha, c: a.checklist.resultado === 'Apto' ? 'ok' : 'bad', t: `Checklist ${a.checklist.resultado}`, d: `${a.checklist.sueno} h de sueño · km ${a.checklist.kmIni}`, nv: 'M3' });
+    if (a.salida) ev.push({ f: a.salida, c: 'nv', t: 'Salida registrada', d: `Km inicial ${a.kmIni}`, nv: 'M4' });
+    S.incidencias.filter((i) => i.asigId === a.id).forEach((i) => ev.push({ f: i.fecha, c: i.gravedad === 'Grave' ? 'bad' : 'acc', t: `Incidencia ${i.gravedad.toLowerCase()}: ${i.tipo}`, d: esc(i.desc), nv: 'M4' }));
+    if (a.llegada) ev.push({ f: a.llegada, c: 'ok', t: 'Llegada y acta de conformidad', d: `Km final ${a.kmFin} · ${a.kmFin - a.kmIni} km recorridos`, nv: 'M4' });
+    if (a.estadoServicio === 'Cancelado') ev.push({ f: a.cancelada || a.creada, c: 'bad', t: 'Asignación cancelada', d: esc(a.motivoCancel || '') });
+  });
+  S.cambios.filter((c) => c.solId === id).forEach((c) => ev.push({ f: c.fecha, c: 'nv', t: `Cambio de ${c.campo.toLowerCase()}`, d: `${esc(c.antes)} → ${esc(c.despues)} · por ${esc(c.usuario)}`, nv: 'M2' }));
+  if (s.estado === 'Reprogramada' || s.estado === 'Cancelada') ev.push({ f: '9999', c: 'bad', t: s.estado, d: esc(s.motivo) });
+  const vl = S.valorizaciones.find((v) => v.solId === id); if (vl) ev.push({ f: (vl.fEnvio || TODAY) + ' 18:00', c: 'ok', t: `Valorización ${vl.estado}`, d: money(vl.monto), nv: 'M6' });
+  ev.sort((a, b) => (a.f || '').localeCompare(b.f || ''));
+  modal(`Línea de tiempo de la solicitud ${id}`, `
+    <div class="row">${chipSol(s.estado)}<span>${fd(s.fecha)} ${s.hora} · ${esc(s.origen)} → ${esc(s.destino)}</span></div>
+    <div class="tl">${ev.map((e) => `<div class="ev ${e.c}"><b>${e.t}</b> ${e.nv ? `<span class="nw">${e.nv}</span>` : ''}<small>${e.f === '9999' ? 'Estado actual' : fdt(e.f)}</small><div>${e.d}</div></div>`).join('')}</div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">Cerrar</button></div>`);
+}
+function cancelarSolicitud(id) {
+  closeModal();
+  modal(`Cancelar la solicitud ${id}`, `<form data-form="cancel" data-id="${id}" class="fg"><div class="f full"><label for="cm">Motivo de la cancelación</label><textarea id="cm" name="motivo" required placeholder="Ej. El cliente postergó la movilización"></textarea></div>
+    <div class="f full"><div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">Volver</button><button class="btn dan">Cancelar solicitud</button></div></div></form>`);
+}
+
+/* ---------- programación y asignación ---------- */
+function vAsignacion() {
+  const ord = { Alta: 0, Media: 1, Baja: 2 };
+  const pend = S.solicitudes.filter((s) => s.estado === 'Pendiente').sort((a, b) => ord[a.prioridad] - ord[b.prioridad] || (a.fecha + a.hora).localeCompare(b.fecha + b.hora));
+  const rep = S.solicitudes.filter((s) => s.estado === 'Reprogramada');
+  const hist = S.asignaciones.slice().sort((a, b) => (b.creada || '').localeCompare(a.creada || '')).slice(0, 12);
+  const fila = (s) => `<tr><td class="mono"><b>${s.id}</b></td><td>${esc(cli(s.clienteId).razon)}</td><td class="num">${fd(s.fecha)} ${s.hora}</td><td>${esc(s.origen)} → ${esc(s.destino)}</td><td>${tipo(s.tipoId).nombre}<div class="sub">${s.pasajeros} pasajeros</div></td><td><span class="chip ${s.prioridad === 'Alta' ? 'c-bad' : s.prioridad === 'Media' ? 'c-warn' : 'c-mut'}">${s.prioridad}</span></td>
+    <td>${isAdmin() ? `<div class="row" style="gap:4px"><button class="btn sm pri" data-act="auto" data-id="${s.id}">Auto-asignar</button><button class="btn sm" data-act="manual" data-id="${s.id}">Manual</button></div>` : ''}</td></tr>`;
+  return `
+  <div class="ph"><div><h1>Programación y asignación</h1><p>El motor valida cada combinación con las reglas R1 a R10 antes de asignar.</p></div></div>
+  <div class="card"><h2>Solicitudes pendientes <span class="chip c-warn">${pend.length}</span></h2>
+    <div class="tw"><table><thead><tr><th>N.°</th><th>Cliente</th><th>Fecha</th><th>Ruta</th><th>Unidad</th><th>Prioridad</th><th></th></tr></thead><tbody>${pend.map(fila).join('') || '<tr><td colspan="7">No hay solicitudes pendientes.</td></tr>'}</tbody></table></div></div>
+  <div class="card"><h2>Reprogramadas <span class="chip c-acc">${rep.length}</span> ${NW('M7')}</h2>
+    ${rep.map((s) => `<div class="item" style="margin-bottom:8px"><span class="mono"><b>${s.id}</b></span><div class="grow">${fd(s.fecha)} ${s.hora} · ${tipo(s.tipoId).nombre}, ${s.pasajeros} pasajeros<div class="sub">${esc(s.motivo)}</div></div>${isAdmin() ? `<button class="btn sm pri" data-act="auto" data-id="${s.id}">Reintentar</button><button class="btn sm" data-act="manual" data-id="${s.id}">Manual</button>` : ''}</div>`).join('') || '<p class="hint">Sin solicitudes reprogramadas.</p>'}
+    <p class="hint">Cada reprogramación por falta de recursos cuenta como demanda no atendida en el tablero.</p></div>
+  <div class="card"><h2>Reglas del motor de validación</h2>
+    <div class="tw"><table><thead><tr><th>Regla</th><th>Condición</th><th>Efecto</th></tr></thead><tbody>
+      <tr><td class="rule">R1</td><td>Falta un documento bloqueante del conductor o del vehículo ${NW('M1')}</td><td>Bloquea</td></tr>
+      <tr><td class="rule">R2</td><td>Documento bloqueante vencido (v1.0 solo revisaba licencia y revisión técnica) ${NW('M1')}</td><td>Bloquea</td></tr>
+      <tr><td class="rule">R3</td><td>Documento por vencer</td><td>Observa</td></tr>
+      <tr><td class="rule">R4</td><td>Vehículo en mantenimiento o de baja</td><td>Bloquea</td></tr>
+      <tr><td class="rule">R5</td><td>Conductor no apto, de vacaciones o de baja</td><td>Bloquea</td></tr>
+      <tr><td class="rule">R6</td><td>Conductor no habilitado para el tipo o con experiencia insuficiente ${NW('M0')}</td><td>Bloquea</td></tr>
+      <tr><td class="rule">R7</td><td>Asientos menores que los pasajeros ${NW()}</td><td>Bloquea</td></tr>
+      <tr><td class="rule">R8</td><td>Documento pendiente de visto bueno de mina ${NW('M1')}</td><td>Bloquea</td></tr>
+      <tr><td class="rule">R9</td><td>Cruce de horario, con ${DESCANSO_H} h de descanso para el conductor ${NW('M5')}</td><td>Bloquea</td></tr>
+      <tr><td class="rule">R10</td><td>Supera ${LIMITE_SEMANA_H} h de manejo en la semana ${NW('M5')}</td><td>Bloquea</td></tr>
+    </tbody></table></div></div>
+  <div class="card"><h2>Historial de asignaciones</h2>
+    <div class="tw"><table><thead><tr><th>Solicitud</th><th>Conductor</th><th>Vehículo</th><th>Veredicto</th><th>Servicio ${NW('M4')}</th><th>Registrada</th></tr></thead><tbody>
+    ${hist.map((a) => `<tr><td class="mono">${a.solId}</td><td>${esc(nomC(cond(a.condId)))}</td><td class="mono">${veh(a.vehId).placa}</td><td><span class="chip ${a.veredicto === 'Aprobada' ? 'c-ok' : 'c-warn'}">${a.veredicto}</span>${a.obs.length ? `<div class="sub">${esc(a.obs.join('; '))}</div>` : ''}</td><td>${chipServ(a.estadoServicio)}</td><td class="num">${fdt(a.creada)}</td></tr>`).join('')}
+    </tbody></table></div></div>`;
+}
+const chipServ = (e) => `<span class="chip ${{ Programado: 'c-info', 'Listo para salir': 'c-acc', 'En ruta': 'c-acc', Completado: 'c-ok', 'Con incidencia': 'c-bad', Cancelado: 'c-mut' }[e] || 'c-mut'}">${e}</span>`;
+function mostrarResultado(r) {
+  return `<div class="verdict ${r.veredicto === 'Aprobada' ? 'v-ok' : r.veredicto === 'Observada' ? 'v-warn' : 'v-bad'}"><b>Veredicto: ${r.veredicto}</b>
+    ${r.bloqueos.map((b) => `<div><span class="rule">${b.code}</span> ${esc(b.msg)} ${b.nuevo ? NW() : ''}</div>`).join('')}
+    ${r.obs.map((b) => `<div><span class="rule">${b.code}</span> ${esc(b.msg)}</div>`).join('')}
+    ${r.veredicto === 'Aprobada' ? '<div>Conductor y vehículo cumplen todas las reglas.</div>' : ''}</div>`;
+}
+function abrirManual(solId, cId, vId) {
+  const s = solx(solId); const rk = ranking(s); const desde7 = addDays(TODAY, -7);
+  const conds = S.conductores.filter((c) => c.estado !== 'De baja');
+  const vehs = S.vehiculos.filter((v) => v.estado !== 'De baja');
+  modal(`Asignación manual de ${solId}`, `
+    <div class="grid g3"><div><div class="hint">Cliente</div><b>${esc(cli(s.clienteId).razon)}</b></div><div><div class="hint">Fecha y ruta</div>${fd(s.fecha)} ${s.hora} · ${esc(s.origen)} → ${esc(s.destino)}</div><div><div class="hint">Requiere</div>${tipo(s.tipoId).nombre}, ${s.pasajeros} pasajeros, ${s.duracion} h</div></div>
+    <div class="newbox"><b>Ranking sugerido ${NW('M5')}</b> <span class="hint">conductores disponibles que manejan ${tipo(s.tipoId).nombre}: primero los habilitados, de menos a más horas en 30 días</span>
+      <div class="tw" style="margin-top:8px"><table><thead><tr><th>#</th><th>Conductor</th><th>Horas 7 d</th><th>Horas 30 d</th><th>Habilitación</th></tr></thead><tbody>
+      ${rk.slice(0, 6).map((x, i) => `<tr><td class="num">${i + 1}</td><td>${esc(nomC(x.c))}</td><td class="num">${Math.round(horasConductor(x.c.id, desde7, TODAY))} h</td><td class="num">${Math.round(x.h30)} h</td><td>${chipHab(habilitacion('C', x.c))}</td></tr>`).join('') || '<tr><td colspan="5">Nadie habilitado para este tipo.</td></tr>'}
+      </tbody></table></div></div>
+    <form data-form="manual" data-id="${solId}" class="fg">
+      <div class="f"><label for="mc">Conductor</label><select id="mc" name="condId">${conds.map((c) => `<option value="${c.id}" ${cId === c.id ? 'selected' : ''}>${esc(nomC(c))} · ${c.tipos.map((t) => tipo(t).nombre).join(', ')}</option>`).join('')}</select></div>
+      <div class="f"><label for="mv">Vehículo</label><select id="mv" name="vehId">${vehs.map((v) => `<option value="${v.id}" ${vId === v.id ? 'selected' : ''}>${v.placa} · ${tipo(v.tipoId).nombre} · ${v.asientos} asientos</option>`).join('')}</select></div>
+      <div class="f full" id="mres"></div>
+      <div class="f full"><div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">Cancelar</button><button type="button" class="btn" id="mval">Verificar asignación</button><button class="btn pri" id="mok" disabled>Confirmar asignación</button></div></div>
+    </form>`, true);
+  const check = () => {
+    const r = validar(s, cond($('#mc').value), veh($('#mv').value));
+    $('#mres').innerHTML = mostrarResultado(r); $('#mok').disabled = r.veredicto === 'Rechazada';
+    return r;
+  };
+  $('#mval').onclick = () => { const r = check(); if (r.veredicto === 'Rechazada') { S.rechazos++; save(); } };
+  $('#mc').onchange = () => { $('#mok').disabled = true; $('#mres').innerHTML = ''; };
+  $('#mv').onchange = $('#mc').onchange;
+  if (cId && vId) $('#mval').click();
+}
+function confirmarManual(form) {
+  const s = solx(form.dataset.id); const c = cond(form.condId.value), v = veh(form.vehId.value);
+  const r = validar(s, c, v); if (r.veredicto === 'Rechazada') return;
+  const prev = asigActiva(s.id); if (prev) { prev.estadoServicio = 'Cancelado'; prev.cancelada = nowStamp(); prev.motivoCancel = 'Reasignación manual'; }
+  crearAsignacion(s, c, v, r, 'Manual'); closeModal(); save(); render(); toast(`Asignación ${r.veredicto} registrada y notificada a ${nomC(c)}.`, 'ok');
+}
+
+/* ---------- calendario ---------- */
+function vCalendario() {
+  const base = S.ui.semana || semana(TODAY)[0];
+  const dias = [...Array(7)].map((_, i) => addDays(base, i));
+  const nombresDia = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  const activos = S.conductores.filter((c) => c.estado !== 'De baja');
+  let cells = `<div class="hd">Conductor</div>` + dias.map((d, i) => `<div class="hd ${d === TODAY ? 'today' : ''}">${nombresDia[i]} ${fd(d).slice(0, 5)}</div>`).join('');
+  activos.forEach((c) => {
+    const [wi, wf] = [dias[0], dias[6]];
+    cells += `<div><b style="font-size:12.5px">${esc(nomC(c))}</b><div class="hint">${Math.round(horasConductor(c.id, wi, wf))} de ${LIMITE_SEMANA_H} h</div></div>`;
+    dias.forEach((d) => {
+      const evs = S.asignaciones.filter((a) => a.condId === c.id && a.estadoServicio !== 'Cancelado' && solx(a.solId).fecha === d);
+      cells += `<div>${c.estado !== 'Disponible' ? `<span class="hint">${c.estado}</span>` : ''}${evs.map((a) => { const s = solx(a.solId); const cl = a.estadoServicio === 'Completado' ? 'ok' : a.estadoServicio === 'En ruta' ? 'acc' : a.estadoServicio === 'Con incidencia' ? 'bad' : ''; return `<span class="ev-b ${cl}"><b>${s.hora}</b> ${s.id} · ${veh(a.vehId).placa}<br>${s.duracion} h · ${a.estadoServicio}</span>`; }).join('')}</div>`;
+    });
+  });
+  return `
+  <div class="ph"><div><h1>Calendario semanal ${NW('M5')}</h1><p>Un conductor solo está ocupado en el horario de su servicio. Así se ven los cruces y la carga de la semana.</p></div>
+    <div class="row"><button class="btn" data-act="sem" data-d="-7">Semana anterior</button><button class="btn" data-act="sem" data-d="0">Esta semana</button><button class="btn" data-act="sem" data-d="7">Semana siguiente</button></div></div>
+  <div class="tw"><div class="cal">${cells}</div></div>
+  <div class="legend"><span><i style="background:var(--info)"></i>Programado</span><span><i style="background:var(--accent)"></i>En ruta</span><span><i style="background:var(--ok)"></i>Completado</span><span><i style="background:var(--bad)"></i>Con incidencia</span></div>`;
+}
+
+/* ---------- seguimiento de servicios ---------- */
+function vSeguimiento() {
+  const lista = S.asignaciones.filter((a) => ['Programado', 'Listo para salir', 'En ruta', 'Con incidencia'].includes(a.estadoServicio)).sort((a, b) => (solx(a.solId).fecha + solx(a.solId).hora).localeCompare(solx(b.solId).fecha + solx(b.solId).hora));
+  return `
+  <div class="ph"><div><h1>Servicios en curso ${NW('M4')}</h1><p>Estados que registra el conductor desde su celular, sin GPS. Reemplaza el seguimiento por audios de WhatsApp.</p></div></div>
+  <div class="tw"><table><thead><tr><th>Solicitud</th><th>Programado</th><th>Conductor y unidad</th><th>Checklist ${NW('M3')}</th><th>Estado</th><th>Salida</th><th></th></tr></thead><tbody>
+  ${lista.map((a) => { const s = solx(a.solId); const inc = S.incidencias.filter((i) => i.asigId === a.id);
+    return `<tr><td class="mono"><b>${s.id}</b><div class="sub">${esc(s.origen)} → ${esc(s.destino)}</div></td><td class="num">${fd(s.fecha)} ${s.hora}</td><td>${esc(nomC(cond(a.condId)))}<div class="sub mono">${veh(a.vehId).placa}</div></td>
+    <td>${a.checklist ? `<span class="chip ${a.checklist.resultado === 'Apto' ? 'c-ok' : 'c-bad'}">${a.checklist.resultado}</span><div class="sub">${a.checklist.sueno} h de sueño</div>` : '<span class="chip c-mut">Pendiente</span>'}</td>
+    <td>${chipServ(a.estadoServicio)}${inc.length ? `<div class="sub">${inc.map((i) => `${i.tipo} (${i.gravedad.toLowerCase()})`).join(', ')}</div>` : ''}</td><td class="num">${a.salida ? fdt(a.salida) : '—'}</td>
+    <td><div class="row" style="gap:4px"><button class="btn sm" data-act="sol-ver" data-id="${s.id}">Línea de tiempo</button>${isAdmin() ? accionesServicio(a, true) : ''}</div></td></tr>`; }).join('') || '<tr><td colspan="7">No hay servicios en curso.</td></tr>'}
+  </tbody></table></div>`;
+}
+function accionesServicio(a, admin) {
+  const b = [];
+  if (a.estadoServicio === 'Programado') b.push(`<button class="btn sm pri" data-act="ck" data-id="${a.id}">Llenar checklist</button>`);
+  if (a.estadoServicio === 'Programado' && a.checklist && a.checklist.resultado === 'No apto' && admin) b.push(`<button class="btn sm" data-act="reasignar" data-id="${a.id}">Reasignar</button>`);
+  if (a.estadoServicio === 'Listo para salir') b.push(`<button class="btn sm pri" data-act="salida" data-id="${a.id}">Registrar salida</button>`);
+  if (a.estadoServicio === 'En ruta') b.push(`<button class="btn sm pri" data-act="llegada" data-id="${a.id}">Registrar llegada</button>`, `<button class="btn sm dan" data-act="incid" data-id="${a.id}">Reportar incidencia</button>`);
+  if (a.estadoServicio === 'Con incidencia' && admin) b.push(`<button class="btn sm pri" data-act="reemplazo" data-id="${a.id}">Activar reemplazo</button>`, `<button class="btn sm" data-act="continuar" data-id="${a.id}">Continuar servicio</button>`);
+  return b.join('');
+}
+function formChecklist(id) {
+  const a = S.asignaciones.find((x) => x.id === id); const s = solx(a.solId);
+  const items = [['frenos', 'Frenos', true], ['llantas', 'Llantas y presión', true], ['luces', 'Luces', true], ['cinturones', 'Cinturones de seguridad', true], ['extintor', 'Extintor vigente', false], ['botiquin', 'Botiquín', false], ['triangulos', 'Triángulos de seguridad', false], ['docs', 'Documentos a bordo', false], ['gps', 'GPS operativo', false]];
+  modal(`Checklist preoperacional · ${s.id} ${NW('M3')}`, `
+  <form data-form="ck" data-id="${id}" class="fg">
+    <div class="f full"><div class="hint">${veh(a.vehId).placa} · ${fd(s.fecha)} ${s.hora} · ${esc(s.origen)} → ${esc(s.destino)}</div></div>
+    <div class="f full"><label>Revisión de la unidad (los ítems críticos bloquean la salida)</label><div class="checks">${items.map(([k, t, crit]) => `<label class="ck"><input type="checkbox" name="${k}" checked> ${t}${crit ? ' <span class="chip c-bad" style="padding:0 6px">crítico</span>' : ''}</label>`).join('')}</div></div>
+    <div class="f"><label for="cks">Horas de sueño en las últimas 24 h</label><input type="number" id="cks" name="sueno" min="0" max="24" step="0.5" required value="7"></div>
+    <div class="f"><label for="ckk">Kilometraje inicial</label><input type="number" id="ckk" name="kmIni" min="0" required value="${(S.asignaciones.filter((x) => x.vehId === a.vehId && x.kmFin).map((x) => x.kmFin).sort((p, q) => q - p)[0] || 50000) + 12}"></div>
+    <div class="f full"><label class="ck"><input type="checkbox" name="apto" checked> Me siento en condiciones de conducir (sin somnolencia ni malestar)</label></div>
+    <div class="f full hint">Si duermes menos de ${SUENO_MIN} h, falla un ítem crítico o no te sientes apto, el sistema no permite la salida y avisa a operaciones.</div>
+    <div class="f full"><div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn pri">Enviar checklist</button></div></div>
+  </form>`, true);
+}
+function guardarChecklist(form) {
+  const a = S.asignaciones.find((x) => x.id === form.dataset.id); const fdta = new FormData(form);
+  const ck = {}; ['frenos', 'llantas', 'luces', 'cinturones', 'extintor', 'botiquin', 'triangulos', 'docs', 'gps', 'apto'].forEach((k) => { ck[k] = fdta.get(k) === 'on'; });
+  ck.sueno = +fdta.get('sueno'); ck.kmIni = +fdta.get('kmIni'); ck.fecha = nowStamp();
+  const motivos = [];
+  ['frenos', 'llantas', 'luces', 'cinturones'].forEach((k) => { if (!ck[k]) motivos.push(`falla en ${k}`); });
+  if (ck.sueno < SUENO_MIN) motivos.push(`solo ${ck.sueno} h de sueño`);
+  if (!ck.apto) motivos.push('el conductor no se siente apto');
+  ck.resultado = motivos.length ? 'No apto' : 'Apto'; ck.motivos = motivos;
+  a.checklist = ck; a.kmIni = ck.kmIni;
+  if (motivos.length) {
+    alertar('Alto', 'Conductor o unidad no apta', `${a.solId}: ${nomC(cond(a.condId))} no puede salir (${motivos.join(', ')}).`, `CK-${a.id}-${Date.now()}`);
+    notificar('admin', `Checklist no apto en ${a.solId}: ${motivos.join(', ')}. Reasigne el servicio.`);
+    closeModal(); save(); render(); toast(`Checklist NO APTO: ${motivos.join(', ')}. No se permite la salida y se avisó a operaciones.`, 'bad');
+  } else { a.estadoServicio = 'Listo para salir'; closeModal(); save(); render(); toast('Checklist apto. Ya puedes registrar la salida.', 'ok'); }
+}
+function registrarSalida(id) { const a = S.asignaciones.find((x) => x.id === id); a.estadoServicio = 'En ruta'; a.salida = nowStamp(); notificar('admin', `${a.solId} salió: ${veh(a.vehId).placa}, ${nomC(cond(a.condId))}.`); save(); render(); toast('Salida registrada. Estado: En ruta. Se avisó al cliente y a operaciones.', 'ok'); }
+function formLlegada(id) {
+  const a = S.asignaciones.find((x) => x.id === id);
+  modal(`Registrar llegada · ${a.solId} ${NW('M4')}`, `<form data-form="llegada" data-id="${id}" class="fg">
+    <div class="f"><label for="lk">Kilometraje final</label><input type="number" id="lk" name="kmFin" min="${a.kmIni}" required value="${a.kmIni + 385}"><span class="hint">Km inicial: ${a.kmIni}</span></div>
+    <div class="f"><label for="lc">Combustible (S/)</label><input type="number" id="lc" name="comb" min="0" step="1" value="320"></div>
+    <div class="f"><label for="lp">Peajes (S/)</label><input type="number" id="lp" name="peaje" min="0" step="1" value="28"></div>
+    <div class="f"><label for="la">Alimentación y otros (S/)</label><input type="number" id="la" name="ali" min="0" step="1" value="0"></div>
+    <div class="f full"><label class="ck"><input type="checkbox" name="acta" required> El cliente firmó el acta de conformidad</label></div>
+    <div class="f full"><div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn pri">Registrar llegada</button></div></div></form>`);
+}
+function guardarLlegada(form) {
+  const a = S.asignaciones.find((x) => x.id === form.dataset.id); const d = Object.fromEntries(new FormData(form));
+  a.kmFin = +d.kmFin; a.llegada = nowStamp(); a.acta = true; a.estadoServicio = 'Completado';
+  solx(a.solId).estado = 'Completada';
+  [['Combustible', d.comb], ['Peajes', d.peaje], ['Alimentación', d.ali]].forEach(([t, m]) => { if (+m > 0) S.gastos.push({ id: uid('G'), asigId: a.id, tipo: t, monto: +m }); });
+  closeModal(); save(); render(); toast(`Servicio completado: ${a.kmFin - a.kmIni} km recorridos. Ya se puede generar la valorización.`, 'ok');
+}
+function formIncidencia(id) {
+  modal(`Reportar incidencia ${NW('M4')}`, `<form data-form="incid" data-id="${id}" class="fg">
+    <div class="f"><label for="it">Tipo</label><select id="it" name="tipo"><option>Falla mecánica</option><option>Accidente</option><option>Retraso</option><option>Cambio de ruta</option><option>Otro</option></select></div>
+    <div class="f"><label for="ig">Gravedad</label><select id="ig" name="gravedad"><option>Leve</option><option selected>Grave</option></select></div>
+    <div class="f full"><label for="idd">Descripción</label><textarea id="idd" name="desc" required>Pérdida de presión en el sistema de frenos a la altura del km 92.</textarea></div>
+    <div class="f full hint">Una incidencia grave detiene el servicio, genera una alerta de riesgo alto y permite activar una unidad de reemplazo.</div>
+    <div class="f full"><div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn dan">Reportar</button></div></div></form>`);
+}
+function guardarIncidencia(form) {
+  const a = S.asignaciones.find((x) => x.id === form.dataset.id); const d = Object.fromEntries(new FormData(form));
+  S.incidencias.push({ id: uid('I'), asigId: a.id, ...d, fecha: nowStamp() });
+  if (d.gravedad === 'Grave') {
+    a.estadoServicio = 'Con incidencia';
+    if (d.tipo === 'Falla mecánica') veh(a.vehId).estado = 'En mantenimiento';
+    alertar('Alto', 'Incidencia grave', `${a.solId}: ${d.tipo} con ${veh(a.vehId).placa}. ${d.desc}`, `IN-${a.id}-${Date.now()}`);
+    notificar('admin', `Incidencia grave en ${a.solId}: ${d.tipo}. Active una unidad de reemplazo.`);
+  }
+  closeModal(); save(); render(); toast(d.gravedad === 'Grave' ? 'Incidencia grave registrada. Operaciones puede activar un reemplazo.' : 'Incidencia leve registrada en la bitácora.', d.gravedad === 'Grave' ? 'bad' : 'ok');
+}
+function reemplazo(id, motivo, excl) {
+  const a = S.asignaciones.find((x) => x.id === id); const s = solx(a.solId);
+  a.estadoServicio = 'Cancelado'; a.cancelada = nowStamp(); a.motivoCancel = motivo;
+  s.estado = 'Pendiente';
+  const r = asignarAuto(s, excl);
+  save(); render();
+  toast(r.ok ? `Reemplazo asignado: ${r.msg}` : `No se encontró reemplazo: ${r.msg}`, r.ok ? 'ok' : 'bad');
+}
+
+/* ---------- valorizaciones ---------- */
+function calcValorizacion(s, a) {
+  const t = S.tarifas.find((r) => r.origen === s.origen && r.destino === s.destino && r.tipoId === veh(a.vehId).tipoId);
+  const kmRec = a.kmFin - a.kmIni; const kmIncl = t ? t.km : kmRec; const pkm = t ? t.pkm : 0;
+  const kmExceso = Math.max(0, kmRec - kmIncl); const base = s.monto || (t ? t.base : 0);
+  return { t, kmRec, kmIncl, pkm, kmExceso, base, monto: Math.round((base + kmExceso * pkm) * 100) / 100 };
+}
+const FLUJO = ['Borrador', 'Enviada', 'Conforme', 'Facturada', 'Pagada'];
+function vValorizaciones() {
+  const sinVal = S.solicitudes.filter((s) => s.estado === 'Completada' && !S.valorizaciones.some((v) => v.solId === s.id));
+  const puede = S.rol === 'admin' || S.rol === 'fin';
+  return `
+  <div class="ph"><div><h1>Valorizaciones y cobro ${NW('M6')}</h1><p>El tareo se calcula con el kilometraje y los gastos que registró el conductor; no se vuelve a digitar en Excel.</p></div></div>
+  <div class="card"><h2>Servicios completados por valorizar <span class="chip c-warn">${sinVal.length}</span></h2>
+    ${sinVal.map((s) => { const a = S.asignaciones.find((x) => x.solId === s.id && x.estadoServicio === 'Completado'); const c = calcValorizacion(s, a);
+      return `<div class="item" style="margin-bottom:8px"><span class="mono"><b>${s.id}</b></span><div class="grow">${esc(cli(s.clienteId).razon)} · ${fd(s.fecha)} · ${veh(a.vehId).placa}<div class="sub">${c.kmRec} km recorridos, ${c.kmExceso} km de exceso · monto calculado ${money(c.monto)}</div></div>${puede ? `<button class="btn sm pri" data-act="val-gen" data-id="${s.id}">Generar valorización</button>` : ''}</div>`; }).join('') || '<p class="hint">Todos los servicios completados tienen su valorización.</p>'}</div>
+  <div class="tw"><table><thead><tr><th>Valorización</th><th>Cliente</th><th>Km</th><th>Monto</th><th>Estado</th><th>Factura</th><th></th></tr></thead><tbody>
+  ${S.valorizaciones.slice().reverse().map((v) => { const s = solx(v.solId); const atraso = v.estado === 'Facturada' && v.fFactura && diffDays(TODAY, v.fFactura) > DIAS_COBRO;
+    return `<tr><td class="mono"><b>${v.id}</b><div class="sub">${v.solId}</div></td><td>${esc(cli(s.clienteId).razon)}</td><td class="num">${v.kmRec}<div class="sub">${v.kmExceso} de exceso</div></td><td class="num"><b>${money(v.monto)}</b></td>
+    <td><span class="chip ${v.estado === 'Pagada' ? 'c-ok' : v.estado === 'Observada' ? 'c-bad' : v.estado === 'Facturada' ? 'c-info' : 'c-warn'}">${v.estado}</span>${atraso ? `<div class="sub" style="color:var(--bad)">${diffDays(TODAY, v.fFactura)} días sin pago</div>` : ''}</td>
+    <td class="mono">${v.factura || '—'}${v.fFactura ? `<div class="sub">${fd(v.fFactura)}</div>` : ''}</td>
+    <td><button class="btn sm" data-act="val-ver" data-id="${v.id}">Ver valorización</button></td></tr>`; }).join('')}
+  </tbody></table></div>`;
+}
+function generarValorizacion(solId) {
+  const s = solx(solId); const a = S.asignaciones.find((x) => x.solId === solId && x.estadoServicio === 'Completado'); const c = calcValorizacion(s, a);
+  const v = { id: uid('VL'), solId, kmRec: c.kmRec, kmExceso: c.kmExceso, monto: c.monto, estado: 'Borrador', os: '', factura: '', fFactura: null, fEnvio: null, fConf: null, fPago: null, obs: '' };
+  S.valorizaciones.push(v); save(); render(); verValorizacion(v.id); toast('Valorización generada en estado Borrador.', 'ok');
+}
+function verValorizacion(id) {
+  const v = S.valorizaciones.find((x) => x.id === id); const s = solx(v.solId); const a = S.asignaciones.find((x) => x.solId === v.solId && x.estadoServicio === 'Completado'); const c = calcValorizacion(s, a);
+  const gastos = S.gastos.filter((g) => g.asigId === a.id); const tg = gastos.reduce((t, g) => t + g.monto, 0);
+  const puede = S.rol === 'admin' || S.rol === 'fin';
+  const sig = { Borrador: ['Enviada', 'Enviar al cliente'], Enviada: ['Conforme', 'Registrar conformidad'], Observada: ['Enviada', 'Reenviar corregida'], Conforme: ['Facturada', 'Registrar factura'], Facturada: ['Pagada', 'Registrar pago'] }[v.estado];
+  modal(`Valorización ${v.id} · ${v.solId}`, `
+    <div class="grid g2"><div><div class="hint">Empresa</div><b>Transportes Kallpa Andina S.A.C.</b><div class="hint">RUC 20600000001 (ficticio)</div></div><div><div class="hint">Cliente</div><b>${esc(cli(s.clienteId).razon)}</b><div class="hint">RUC ${cli(s.clienteId).ruc}</div></div></div>
+    <div class="tw"><table><tbody>
+      <tr><td>Servicio</td><td>${s.servicio} · ${fd(s.fecha)} ${s.hora} · ${esc(s.origen)} → ${esc(s.destino)}</td></tr>
+      <tr><td>Unidad y conductor</td><td class="mono">${veh(a.vehId).placa} (${tipo(veh(a.vehId).tipoId).nombre}) · ${esc(nomC(cond(a.condId)))}</td></tr>
+      <tr><td>Kilometraje</td><td class="num">${a.kmIni} → ${a.kmFin} = <b>${c.kmRec} km</b></td></tr>
+      <tr><td>Tarifa</td><td>${c.t ? `${money(c.base)} incluye ${c.kmIncl} km; exceso a ${money(c.pkm)} por km` : `Monto acordado ${money(c.base)}`}</td></tr>
+      <tr><td>Exceso</td><td class="num">${c.kmExceso} km × ${money(c.pkm)} = ${money(c.kmExceso * c.pkm)}</td></tr>
+      <tr><td><b>Total a valorizar</b></td><td class="num"><b>${money(v.monto)}</b> <span class="hint">más IGV en la factura</span></td></tr>
+    </tbody></table></div>
+    <div class="newbox"><b>Tareo interno (costos del servicio)</b><div class="sub">${gastos.map((g) => `${g.tipo}: ${money(g.monto)}`).join(' · ') || 'Sin gastos registrados'}</div><div>Total gastos ${money(tg)} · Margen bruto estimado <b>${money(v.monto - tg)}</b></div></div>
+    <div class="row">${FLUJO.map((e) => `<span class="chip ${e === v.estado ? 'c-acc' : FLUJO.indexOf(e) < FLUJO.indexOf(v.estado) ? 'c-ok' : 'c-mut'}">${e}</span>`).join('<span class="hint">→</span>')}${v.estado === 'Observada' ? '<span class="chip c-bad">Observada</span>' : ''}</div>
+    ${v.obs ? `<div class="err">Observación del cliente: ${esc(v.obs)}</div>` : ''}
+    ${puede && sig ? `<form data-form="val" data-id="${v.id}" class="fg">
+      ${sig[0] === 'Conforme' ? `<div class="f"><label for="vos">N.° de orden de servicio o conformidad</label><input type="text" id="vos" name="os" required value="OS-2026-${String(Math.floor(Math.random() * 900) + 100)}"></div>` : ''}
+      ${sig[0] === 'Facturada' ? `<div class="f"><label for="vfa">N.° de factura</label><input type="text" id="vfa" name="factura" required value="F001-000${250 + S.valorizaciones.length}"></div>` : ''}
+      <div class="f full"><div class="row" style="justify-content:flex-end">${v.estado === 'Enviada' ? `<button type="button" class="btn dan" data-act="val-obs" data-id="${v.id}">Cliente observó</button>` : ''}<button class="btn pri" data-next="${sig[0]}">${sig[1]}</button></div></div></form>` : ''}
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">Cerrar</button></div>`, true);
+}
+function avanzarValorizacion(form) {
+  const v = S.valorizaciones.find((x) => x.id === form.dataset.id); const d = Object.fromEntries(new FormData(form));
+  const next = form.querySelector('[data-next]').dataset.next;
+  if (next === 'Enviada') { v.fEnvio = TODAY; v.obs = ''; }
+  if (next === 'Conforme') { v.fConf = TODAY; v.os = d.os; }
+  if (next === 'Facturada') { v.fFactura = TODAY; v.factura = d.factura; }
+  if (next === 'Pagada') { v.fPago = TODAY; }
+  v.estado = next; escanear(); save(); render(); verValorizacion(v.id); toast(`Valorización en estado ${next}.`, 'ok');
+}
+
+/* ---------- reportes ---------- */
+const csv = (rows) => rows.map((r) => r.map((x) => { const s = String(x ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n');
+const DATASETS = {
+  'conductores_habilitacion.csv': { d: 'Conductores con tipos habilitados y estado de habilitación', nuevo: true, f: () => csv([['driver_id', 'conductor', 'dni', 'categoria', 'tipos_habilitados', 'experiencia_anios', 'estado', 'habilitacion', 'horas_30d'], ...S.conductores.map((c) => [c.id, nomC(c), c.dni, c.cat, c.tipos.map((t) => tipo(t).nombre).join(' | '), yearsSince(c.fLic), c.estado, habilitacion('C', c).estado, Math.round(horasConductor(c.id, addDays(TODAY, -30), TODAY) * 10) / 10])]) },
+  'vehiculos_habilitacion.csv': { d: 'Vehículos con tipo, asientos, uso y habilitación', nuevo: true, f: () => csv([['truck_id', 'placa', 'tipo', 'asientos', 'estado', 'habilitacion', 'uso_30d_h'], ...S.vehiculos.map((v) => [v.id, v.placa, tipo(v.tipoId).nombre, v.asientos, v.estado, habilitacion('V', v).estado, Math.round(usoVeh(v.id))])]) },
+  'documentos.csv': { d: 'Documentos de conductores y vehículos con estado y visto bueno de mina', f: () => csv([['document_id', 'titular', 'referencia', 'tipo_documento', 'emision', 'vencimiento', 'estado', 'visto_bueno_mina'], ...S.documentos.map((d) => [d.id, d.titular === 'C' ? 'Conductor' : 'Vehículo', d.titular === 'C' ? nomC(cond(d.refId)) : veh(d.refId)?.placa, tdoc(d.tipoDocId)?.nombre, d.emision, d.vence || '', estadoDoc(d), d.mina])]) },
+  'solicitudes.csv': { d: 'Solicitudes con pasajeros, duración y demanda no atendida', f: () => csv([['request_id', 'cliente', 'fecha', 'hora', 'origen', 'destino', 'tipo_vehiculo', 'pasajeros', 'duracion_h', 'prioridad', 'estado', 'demanda_no_atendida'], ...S.solicitudes.map((s) => [s.id, cli(s.clienteId).razon, s.fecha, s.hora, s.origen, s.destino, tipo(s.tipoId).nombre, s.pasajeros, s.duracion, s.prioridad, s.estado, s.noAtendida ? 1 : 0])]) },
+  'asignaciones_servicio.csv': { d: 'Asignaciones con veredicto, estado del servicio, km y horas reales', f: () => csv([['assignment_id', 'request_id', 'conductor', 'placa', 'veredicto', 'estado_servicio', 'salida', 'llegada', 'km_recorridos', 'horas'], ...S.asignaciones.map((a) => [a.id, a.solId, nomC(cond(a.condId)), veh(a.vehId).placa, a.veredicto, a.estadoServicio, a.salida || '', a.llegada || '', a.kmFin ? a.kmFin - a.kmIni : '', Math.round(horasAsig(a) * 10) / 10])]) },
+  'valorizaciones.csv': { d: 'Valorizaciones, facturas y cobros', nuevo: true, f: () => csv([['valorizacion_id', 'request_id', 'cliente', 'km', 'km_exceso', 'monto', 'estado', 'factura', 'fecha_factura', 'fecha_pago'], ...S.valorizaciones.map((v) => [v.id, v.solId, cli(solx(v.solId).clienteId).razon, v.kmRec, v.kmExceso, v.monto, v.estado, v.factura, v.fFactura || '', v.fPago || ''])]) },
+  'alertas.csv': { d: 'Alertas activas y resueltas', f: () => csv([['alert_id', 'nivel', 'tipo', 'estado', 'mensaje', 'fecha'], ...S.alertas.map((a) => [a.id, a.nivel, a.tipo, a.estado, a.msg, a.fecha])]) },
+};
+function vReportes() {
+  return `
+  <div class="ph"><div><h1>Reportes para Power BI</h1><p>Los archivos se generan desde los datos del sistema. En este prototipo se copian al portapapeles para pegarlos en un archivo .csv.</p></div></div>
+  <div class="tw"><table><thead><tr><th>Archivo</th><th>Contenido</th><th>Filas</th><th></th></tr></thead><tbody>
+  ${Object.entries(DATASETS).map(([k, v]) => `<tr><td class="mono"><b>${k}</b> ${v.nuevo ? NW('M7') : ''}</td><td>${v.d}</td><td class="num">${v.f().split('\n').length - 1}</td><td><button class="btn sm" data-act="csv" data-k="${k}">Ver y copiar</button></td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ---------- configuración ---------- */
+function vConfig() {
+  return `
+  <div class="ph"><div><h1>Configuración ${NW('M0')}</h1><p>Catálogos que antes estaban fijos en el código o eran texto libre.</p></div></div>
+  <div class="card"><h2>Tipos de vehículo ${NW('M0')}</h2>
+    <div class="tw"><table><thead><tr><th>Tipo</th><th>Asientos de referencia</th><th>Experiencia mínima</th><th>Categoría mínima</th><th>Unidades</th><th>Conductores habilitados</th><th>Estado</th><th></th></tr></thead><tbody>
+    ${S.tipos.map((t) => `<tr><td><b>${t.nombre}</b></td><td class="num">${t.asientos}</td><td class="num">${t.expMin} años</td><td class="mono">${t.cat}</td><td class="num">${S.vehiculos.filter((v) => v.tipoId === t.id).length}</td><td class="num">${S.conductores.filter((c) => c.tipos.includes(t.id)).length}</td><td><span class="chip ${t.activo ? 'c-ok' : 'c-mut'}">${t.activo ? 'Activo' : 'Inactivo'}</span></td><td><button class="btn sm" data-act="tipo-edit" data-id="${t.id}">Editar</button></td></tr>`).join('')}
+    </tbody></table></div><div class="row" style="margin-top:10px"><button class="btn pri sm" data-act="tipo-new">Agregar tipo</button></div></div>
+  <div class="card"><h2>Requisitos documentales ${NW('M1')}</h2>
+    <div class="tw"><table><thead><tr><th>Documento</th><th>Aplica a</th><th>Exigido para</th><th>Vence</th><th>Bloquea la asignación</th><th>Aviso previo</th></tr></thead><tbody>
+    ${S.tiposDoc.map((t) => `<tr><td><b>${t.nombre}</b> ${t.v1 ? '' : NW()}</td><td>${t.aplica === 'C' ? 'Conductor' : 'Vehículo'}</td><td>${t.aplica === 'C' ? 'Todos los conductores' : t.tipos.length ? t.tipos.map((x) => tipo(x).nombre).join(', ') : 'Todos los tipos'}</td><td>${t.vence ? 'Sí' : 'No'}</td>
+      <td><label class="ck" style="display:inline-flex"><input type="checkbox" data-act="req-bloq" data-id="${t.id}" ${t.bloq ? 'checked' : ''}> ${t.bloq ? 'Sí' : 'No'}</label></td><td class="num">${t.vence ? t.dias + ' días' : '—'}</td></tr>`).join('')}
+    </tbody></table></div></div>
+  <div class="grid g2">
+    <div class="card"><h2>Tarifas por ruta ${NW('M6')}</h2><div class="tw"><table><thead><tr><th>Ruta</th><th>Tipo</th><th>Base</th><th>Km incl.</th><th>S/ por km extra</th></tr></thead><tbody>
+      ${S.tarifas.map((r) => `<tr><td>${r.origen} → ${r.destino}</td><td>${tipo(r.tipoId).nombre}</td><td class="num">${money(r.base)}</td><td class="num">${r.km}</td><td class="num">${r.pkm.toFixed(2)}</td></tr>`).join('')}</tbody></table></div></div>
+    <div class="card"><h2>Clientes ${NW('M6')}</h2><div class="tw"><table><thead><tr><th>Razón social</th><th>RUC</th><th>Solicitudes</th></tr></thead><tbody>
+      ${S.clientes.map((k) => `<tr><td>${esc(k.razon)}</td><td class="mono">${k.ruc}</td><td class="num">${S.solicitudes.filter((s) => s.clienteId === k.id).length}</td></tr>`).join('')}</tbody></table></div><p class="hint">Clientes ficticios para la demostración.</p></div>
+  </div>`;
+}
+function formTipo(t) {
+  t = t || { nombre: '', asientos: 15, expMin: 3, cat: 'A-IIb', activo: true };
+  modal(t.id ? `Editar tipo: ${t.nombre}` : 'Agregar tipo de vehículo', `<form data-form="tipo" data-id="${t.id || ''}" class="fg">
+    <div class="f"><label for="tn">Nombre</label><input type="text" id="tn" name="nombre" required value="${esc(t.nombre)}"></div>
+    <div class="f"><label for="ta">Asientos de referencia</label><input type="number" id="ta" name="asientos" min="1" required value="${t.asientos}"></div>
+    <div class="f"><label for="te">Experiencia mínima (años)</label><input type="number" id="te" name="expMin" min="0" max="30" required value="${t.expMin}"></div>
+    <div class="f"><label for="tc">Categoría mínima de licencia</label><select id="tc" name="cat">${CATS.map((k) => `<option ${t.cat === k ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
+    <div class="f full"><label class="ck"><input type="checkbox" name="activo" ${t.activo ? 'checked' : ''}> Activo (aparece en los formularios)</label></div>
+    <div class="f full"><div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">Cancelar</button><button class="btn pri">Guardar</button></div></div></form>`);
+}
+
+/* ---------- portal del conductor ---------- */
+function vMisServicios() {
+  const cId = ROLES.cond.conductorId; const c = cond(cId);
+  const mios = S.asignaciones.filter((a) => a.condId === cId && a.estadoServicio !== 'Cancelado').sort((a, b) => (solx(b.solId).fecha + solx(b.solId).hora).localeCompare(solx(a.solId).fecha + solx(a.solId).hora));
+  const activos = mios.filter((a) => !['Completado'].includes(a.estadoServicio));
+  const notis = S.notificaciones.filter((n) => n.para === cId);
+  return `
+  <div class="ph"><div><h1>Mis servicios</h1><p>${esc(c.nombres)} ${esc(c.apellidos)} · Licencia ${c.licencia} (${c.cat}) · ${c.tipos.map((t) => tipo(t).nombre).join(', ')}</p></div></div>
+  <div class="split">
+    <div class="card"><h2>Servicios por atender</h2>
+      ${activos.map((a) => { const s = solx(a.solId); return `<div class="item" style="flex-direction:column;gap:8px;margin-bottom:10px">
+        <div class="row" style="justify-content:space-between;width:100%"><b class="mono">${s.id}</b>${chipServ(a.estadoServicio)}</div>
+        <div>${fd(s.fecha)} a las <b>${s.hora}</b> · ${esc(s.origen)} → ${esc(s.destino)}</div>
+        <div class="sub">${esc(cli(s.clienteId).razon)} · unidad <span class="mono">${veh(a.vehId).placa}</span> · ${s.pasajeros} pasajeros</div>
+        ${a.checklist && a.checklist.resultado === 'No apto' ? `<div class="verdict v-bad"><b>Checklist no apto ${NW('M3')}</b><span>${esc(a.checklist.motivos.join(', '))}. Operaciones reasignará el servicio.</span></div>` : ''}
+        <div class="row">${accionesServicio(a, false)}</div></div>`; }).join('') || '<p class="hint">No tienes servicios por atender.</p>'}
+      <h3>Historial</h3>
+      <div class="tw"><table><thead><tr><th>Servicio</th><th>Fecha</th><th>Km</th><th>Estado</th></tr></thead><tbody>
+      ${mios.filter((a) => a.estadoServicio === 'Completado').map((a) => { const s = solx(a.solId); return `<tr><td class="mono">${s.id}</td><td class="num">${fd(s.fecha)}</td><td class="num">${a.kmFin - a.kmIni}</td><td>${chipServ(a.estadoServicio)}</td></tr>`; }).join('') || '<tr><td colspan="4">Sin servicios completados.</td></tr>'}
+      </tbody></table></div></div>
+    <div class="grid" style="align-content:start">
+      <div class="card"><h2>Notificaciones</h2><div class="list">${notis.map((n) => `<div class="item"><div class="grow">${esc(n.msg)}<div class="sub">${fdt(n.fecha)}</div></div>${n.leida ? '<span class="chip c-mut">Leída</span>' : `<button class="btn sm" data-act="leer" data-id="${n.id}">Marcar leída</button>`}</div>`).join('') || '<p class="hint">Sin notificaciones.</p>'}</div></div>
+      <div class="card"><h2>Mis documentos</h2>${chipHab(habilitacion('C', c))}
+        <div class="list" style="margin-top:10px">${docsRequeridos('C', c).map((t) => { const d = docDe('C', cId, t.id); const e = d ? estadoDoc(d) : 'Falta'; return `<div class="item"><div class="grow"><b>${t.nombre}</b><div class="sub">${d ? 'Vence ' + fd(d.vence) : 'No registrado'}</div></div><span class="chip ${e === 'Vigente' ? 'c-ok' : e === 'Por vencer' ? 'c-warn' : 'c-bad'}">${e}</span></div>`; }).join('')}</div></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- eventos ---------- */
+const DEMOS = {
+  'demo-m0': () => { S.rol = 'admin'; go('conductores'); formConductor(cond('C9')); toast('M0: los tipos se eligen con casillas. Prueba desmarcar todos o marcar Minibús.'); },
+  'demo-m1': () => { S.rol = 'admin'; go('vehiculos'); verVehiculo('V9'); toast('M1: el bus F7B-402 no está habilitado porque le falta el Seguro de ocupantes.'); },
+  'demo-m2': () => { S.rol = 'admin'; go('solicitudes'); verSolicitud('S109'); toast('M2: el cambio de hora quedó en la bitácora y se avisó al conductor.'); },
+  'demo-m3': () => { S.rol = 'cond'; go('misservicios'); const a = S.asignaciones.find((x) => x.solId === 'S108' && x.estadoServicio === 'Programado'); if (a) { formChecklist(a.id); toast('M3: cambia las horas de sueño a 4 y envía el checklist para ver el bloqueo.'); } else toast('El servicio S108 ya no está programado. Restablece los datos para repetir la demostración.'); },
+  'demo-m4': () => { S.rol = 'admin'; go('seguimiento'); toast('M4: S107 está en ruta. Reporta una incidencia grave y activa el reemplazo.'); },
+  'demo-m5': () => { S.rol = 'admin'; S.ui.manual = { solId: 'S110', condId: 'C3', vehId: 'V8' }; go('asignacion'); toast('M5 y M0: Jorge Cutipa solo maneja camionetas. El motor bloquea con R6.'); },
+  'demo-m6': () => { S.rol = 'admin'; go('valorizaciones'); if (!S.valorizaciones.some((v) => v.solId === 'S103')) generarValorizacion('S103'); else toast('La valorización de S103 ya fue generada.'); },
+  'demo-m7': () => { S.rol = 'ger'; go('tablero'); toast('M7: indicadores gerenciales ampliados al final del tablero.'); },
+};
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const act = el.dataset.act, id = el.dataset.id;
+  if (el.tagName === 'INPUT' && act !== 'req-bloq') return;
+  const A = {
+    close: closeModal,
+    login: () => { S.rol = el.dataset.r; S.ui.view = el.dataset.r === 'cond' ? 'misservicios' : el.dataset.r === 'fin' ? 'valorizaciones' : 'inicio'; save(); render(); },
+    logout: () => { S.rol = null; save(); render(); },
+    go: () => go(el.dataset.v),
+    reset: () => confirmar('Restablecer datos de demostración', 'Se borrarán los cambios hechos en este navegador y se cargarán los datos iniciales.', () => { const r = S.rol; S = seed(); S.rol = r; escanear(); save(); render(); toast('Datos de demostración restablecidos.', 'ok'); }, 'Restablecer', 'dan'),
+    noti: () => {
+      const mine = S.notificaciones.filter((n) => n.para === S.rol || (S.rol === 'cond' && n.para === ROLES.cond.conductorId) || (S.rol === 'admin' && n.para === 'admin')).slice(0, 15);
+      modal('Notificaciones', `<div class="list">${mine.map((n) => `<div class="item"><div class="grow">${esc(n.msg)}<div class="sub">${fdt(n.fecha)}</div></div>${n.leida ? '<span class="chip c-mut">Leída</span>' : `<button class="btn sm" data-act="leer" data-id="${n.id}">Marcar leída</button>`}</div>`).join('') || '<p class="hint">No tienes notificaciones.</p>'}</div>`);
+    },
+    leer: () => { const n = S.notificaciones.find((x) => x.id === id); n.leida = true; save(); const open = !!$('#ov'); render(); if (open) A.noti(); },
+    scan: () => { const r = escanear(); save(); render(); toast(`Escaneo completo: ${r.nA} alertas de riesgo alto, ${r.nM} de riesgo medio, ${r.res} resueltas automáticamente.`, 'ok'); },
+    'al-res': () => { const a = S.alertas.find((x) => x.id === id); a.estado = 'Resuelta'; a.resuelta = 'Manual'; save(); render(); toast('Alerta marcada como resuelta.', 'ok'); },
+    'cond-new': () => formConductor(), 'cond-ver': () => verConductor(id), 'cond-edit': () => formConductor(cond(id)),
+    'cond-baja': () => confirmar('Dar de baja al conductor', `${esc(nomC(cond(id)))} dejará de aparecer como disponible. Su historial se conserva.`, () => { cond(id).estado = 'De baja'; save(); render(); toast('Conductor dado de baja.', 'ok'); }, 'Dar de baja', 'dan'),
+    'veh-new': () => formVehiculo(), 'veh-ver': () => verVehiculo(id), 'veh-edit': () => formVehiculo(veh(id)),
+    'doc-new': () => formDocumento(el.dataset.tit, el.dataset.ref, el.dataset.tipo),
+    'mina-ok': () => { const d = S.documentos.find((x) => x.id === id); d.mina = 'Aprobado'; escanear(); save(); const r = d.titular === 'C' ? cond(d.refId) : veh(d.refId); closeModal(); render(); toast(`Visto bueno de mina registrado: ${tdoc(d.tipoDocId).nombre}. Habilitación: ${habilitacion(d.titular, r).estado}.`, 'ok'); },
+    'sol-new': () => formSolicitud(), 'sol-edit': () => formSolicitud(solx(id)), 'sol-ver': () => verSolicitud(id), 'sol-cancel': () => cancelarSolicitud(id),
+    auto: () => { const s = solx(id); const r = asignarAuto(s); save(); render();
+      modal(`Asignación automática de ${id}`, `${r.ok ? mostrarResultado(r.r) : `<div class="verdict v-bad"><b>Solicitud reprogramada</b><span>${esc(r.msg)}</span></div>`}
+        <div class="hint">Se evaluaron ${r.intentos.length} combinaciones con el orden del ranking ${NW('M5')}.</div>
+        ${r.intentos.length ? `<div class="tw"><table><thead><tr><th>Conductor</th><th>Vehículo</th><th>Veredicto</th><th>Motivo</th></tr></thead><tbody>${r.intentos.slice(0, 10).map((x) => `<tr><td>${esc(nomC(x.c))}</td><td class="mono">${x.v.placa}</td><td><span class="chip ${x.r.veredicto === 'Aprobada' ? 'c-ok' : x.r.veredicto === 'Observada' ? 'c-warn' : 'c-bad'}">${x.r.veredicto}</span></td><td class="sub">${esc([...x.r.bloqueos, ...x.r.obs].map((b) => b.code + ' ' + b.msg).join('; '))}</td></tr>`).join('')}</tbody></table></div>` : ''}
+        <div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">Cerrar</button></div>`, true); },
+    manual: () => abrirManual(id),
+    sem: () => { const d = +el.dataset.d; S.ui.semana = d === 0 ? null : addDays(S.ui.semana || semana(TODAY)[0], d); save(); render(); },
+    ck: () => formChecklist(id), salida: () => registrarSalida(id), llegada: () => formLlegada(id), incid: () => formIncidencia(id),
+    reemplazo: () => { const a = S.asignaciones.find((x) => x.id === id); reemplazo(id, 'Incidencia grave: se activó una unidad de reemplazo', { c: [a.condId], v: [a.vehId] }); },
+    reasignar: () => { const a = S.asignaciones.find((x) => x.id === id); const ck = a.checklist || {}; const fallaUnidad = ['frenos', 'llantas', 'luces', 'cinturones'].some((k) => ck[k] === false); reemplazo(id, 'Checklist no apto: se reasignó el servicio', { c: [a.condId], v: fallaUnidad ? [a.vehId] : [] }); },
+    continuar: () => { const a = S.asignaciones.find((x) => x.id === id); a.estadoServicio = 'En ruta'; save(); render(); toast('El servicio continúa en ruta.', 'ok'); },
+    'val-gen': () => generarValorizacion(id), 'val-ver': () => verValorizacion(id),
+    'val-obs': () => { const v = S.valorizaciones.find((x) => x.id === id); v.estado = 'Observada'; v.obs = 'El kilometraje no coincide con el reporte del cliente.'; save(); render(); verValorizacion(id); toast('Valorización observada. Se corrige sobre los datos registrados y se reenvía.'); },
+    csv: () => { const k = el.dataset.k; const txt = DATASETS[k].f();
+      modal(k, `<textarea id="csvt" class="mono" style="min-height:260px;font-size:12px" readonly>${esc(txt)}</textarea><div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">Cerrar</button><button class="btn pri" id="cpy">Copiar al portapapeles</button></div>`, true);
+      $('#cpy').onclick = () => { const t = $('#csvt'); if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast('CSV copiado.', 'ok'), () => { t.select(); toast('Selecciona y copia el texto con Ctrl+C.'); }); else { t.select(); toast('Selecciona y copia el texto con Ctrl+C.'); } }; },
+    'tipo-new': () => formTipo(), 'tipo-edit': () => formTipo(tipo(id)),
+    'req-bloq': () => { const t = tdoc(id); t.bloq = el.checked; save(); render(); toast(`${t.nombre} ${t.bloq ? 'ahora bloquea' : 'ya no bloquea'} la asignación.`, 'ok'); },
+    ...DEMOS,
+  };
+  if (A[act]) { if (el.tagName !== 'INPUT') e.preventDefault(); A[act](); }
+});
+document.addEventListener('submit', (e) => {
+  const f = e.target.closest('form[data-form]'); if (!f) return; e.preventDefault();
+  const k = f.dataset.form;
+  if (k === 'cond') guardarConductor(f);
+  else if (k === 'veh') guardarVehiculo(f);
+  else if (k === 'doc') guardarDocumento(f);
+  else if (k === 'sol') guardarSolicitud(f);
+  else if (k === 'manual') confirmarManual(f);
+  else if (k === 'ck') guardarChecklist(f);
+  else if (k === 'llegada') guardarLlegada(f);
+  else if (k === 'incid') guardarIncidencia(f);
+  else if (k === 'val') avanzarValorizacion(f);
+  else if (k === 'cancel') { const s = solx(f.dataset.id); const m = new FormData(f).get('motivo'); s.estado = 'Cancelada'; s.motivo = m; const a = asigActiva(s.id); if (a) { a.estadoServicio = 'Cancelado'; a.cancelada = nowStamp(); a.motivoCancel = m; notificar(a.condId, `El servicio ${s.id} fue cancelado: ${m}`); } closeModal(); save(); render(); toast(`Solicitud ${s.id} cancelada.`, 'ok'); }
+  else if (k === 'tipo') { const d = Object.fromEntries(new FormData(f)); const data = { nombre: d.nombre, asientos: +d.asientos, expMin: +d.expMin, cat: d.cat, activo: !!d.activo }; if (f.dataset.id) Object.assign(tipo(f.dataset.id), data); else S.tipos.push({ id: uid('T'), ...data }); closeModal(); save(); render(); toast('Tipo de vehículo guardado. Ya aparece en los formularios.', 'ok'); }
+});
+document.addEventListener('input', (e) => {
+  const el = e.target.closest('[data-filter]'); if (!el) return;
+  S.ui.filtros[el.dataset.filter] = el.value; save();
+  const pos = el.selectionStart; const idf = el.id; render(); const n = document.getElementById(idf); if (n) { n.focus(); if (n.setSelectionRange && pos != null) try { n.setSelectionRange(pos, pos); } catch (er) { /* no aplica */ } }
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* ---------- arranque ---------- */
+S = load() || seed();
+if (!S.ultimoEscaneo || S.ultimoEscaneo.slice(0, 10) !== TODAY) escanear(); // escaneo automático diario al primer acceso
+save(); render();
+</script>
+</body></html>
